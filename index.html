@@ -6,8 +6,8 @@
   <title>RR Transportes e Locações - Gestão de Frotas</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <!-- SUPABASE JS CLIENT -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- SUPABASE JS BUNDLE ESTÁVEL -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -58,10 +58,10 @@
       </div>
 
       <!-- STATUS DA NUVEM -->
-      <div class="px-4 py-2 border-b border-rr-border/50 flex items-center justify-between text-[11px]">
+      <div class="px-4 py-2.5 border-b border-rr-border/50 flex items-center justify-between text-[11px]">
         <span class="text-slate-400">Banco de Dados:</span>
-        <span id="cloud-status-indicator" class="flex items-center gap-1.5 font-semibold text-amber-400">
-          <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Verificando...
+        <span id="cloud-status-indicator" class="flex items-center gap-1.5 font-semibold text-emerald-400">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Carregando...
         </span>
       </div>
 
@@ -103,48 +103,22 @@
     </div>
   </aside>
 
-  <!-- CONTEÚDO PRINCIPAL -->
+  <!-- ÁREA PRINCIPAL -->
   <main class="flex-1 flex flex-col h-screen overflow-y-auto">
-    <!-- Header Superior -->
+    <!-- Header -->
     <header class="h-14 bg-rr-surface/90 backdrop-blur-md border-b border-rr-border px-6 flex items-center justify-between sticky top-0 z-20">
       <div id="section-title" class="text-sm font-bold text-white tracking-wide flex items-center gap-2">
         <i class="fa-solid fa-bell text-sky-400"></i> Central de Notificações e Vencimentos
       </div>
       <div class="flex items-center gap-3 text-xs">
         <span id="current-date" class="text-slate-400"></span>
-        <button onclick="carregarTudoDaNuvem()" title="Sincronizar com Nuvem" class="p-1.5 rounded-lg bg-rr-card hover:bg-rr-border text-sky-300 border border-rr-border transition flex items-center gap-1.5 px-2.5">
-          <i class="fa-solid fa-arrows-rotate"></i>
-          <span>Sincronizar</span>
+        <button onclick="carregarTudoDaNuvem()" title="Sincronizar com Banco" class="px-2.5 py-1.5 rounded-lg bg-rr-card hover:bg-rr-border text-sky-300 border border-rr-border transition flex items-center gap-1.5">
+          <i class="fa-solid fa-arrows-rotate"></i> Sincronizar
         </button>
       </div>
     </header>
 
     <div class="p-6 space-y-6">
-
-      <!-- BANNER DE SINCRONIZAÇÃO INICIAL -->
-      <div id="banner-bootstrap" class="hidden p-4 rounded-xl bg-blue-950/80 border border-sky-500/50 flex flex-col md:flex-row items-center justify-between gap-3 shadow-lg">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold">
-            <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
-          </div>
-          <div>
-            <h4 class="text-sm font-bold text-sky-300">Banco de Dados Conectado! Deseja enviar os dados da planilha?</h4>
-            <p class="text-xs text-slate-300">As tabelas no Supabase foram detectadas vazias. Clique para gravar os veículos, titulares e clientes na nuvem.</p>
-          </div>
-        </div>
-        <button onclick="carregarPlanilhaParaSupabase()" class="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold transition whitespace-nowrap shadow">
-          Gravar Dados no Supabase
-        </button>
-      </div>
-
-      <!-- ALERTA DE TABELAS AUSENTES (SE NÃO RODOU O SCRIPT SQL) -->
-      <div id="banner-sql-warning" class="hidden p-4 rounded-xl bg-amber-950/70 border border-amber-500/50 flex items-start gap-3 text-xs text-amber-200">
-        <i class="fa-solid fa-triangle-exclamation text-base text-amber-400 mt-0.5"></i>
-        <div>
-          <p class="font-bold text-amber-300">Tabelas não encontradas no Supabase</p>
-          <p class="text-slate-300 mt-0.5">O app está funcionando com os dados locais normalmente. Para salvar na nuvem permanente, execute o script SQL no painel do Supabase (SQL Editor).</p>
-        </div>
-      </div>
 
       <!-- ABA 1: DASHBOARD & ALERTAS -->
       <section id="tab-dashboard" class="space-y-6">
@@ -515,180 +489,69 @@
   </main>
 
   <script>
-    // DADOS INICIAIS DA PLANILHA (BASE RESILIENTE)
-    const baseVeiculos = [
-      { cod: 1, nome: "PIPA VERMELHO", fabricante: "Mercedes", modelo: "1418", ano_fab_mod: "1995", estado: "BA", titularidade: "ANA LUIZA", renavam: "268412258", placa: "GTQ9A58", mes_licenc: 10, cod_seguranca: "45835165555", alugado_a: null, seguradora: "FCK", valor_seguro: 200 },
-      { cod: 2, nome: "MOBI VENDIDO", fabricante: "Fiat", modelo: "MOBI 1", ano_fab_mod: "2018", estado: "BA", titularidade: "VINICIUS", renavam: "1121073090", placa: "PKM6651", mes_licenc: 7, cod_seguranca: "51516434054", alugado_a: "PREFEITURA DE RIO REAL", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 3, nome: "VOYAGE", fabricante: "VW", modelo: "VOYAGE BRANCO", ano_fab_mod: "2020", estado: "BA", titularidade: "JOSE ROQUE", renavam: "1112864420", placa: "QKZ2E42", mes_licenc: 7, cod_seguranca: "1112864420", alugado_a: "PREFEITURA DE RIO REAL", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 4, nome: "CACAMBA AZUL", fabricante: "Mercedes", modelo: "1113 72 INHAMBUPE", ano_fab_mod: "1972", estado: "BA", titularidade: "JOABISON", renavam: "205407285", placa: "MUK5911", mes_licenc: 7, cod_seguranca: "13433978188", alugado_a: "PREFEITURA DE INHAMBUPE", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 5, nome: "FORD CARGO 816", fabricante: "Ford", modelo: "CARGO FABRICA 8 160", ano_fab_mod: "2013", estado: "BA", titularidade: "LOURIVANIA", renavam: "496636154", placa: "OIJ9E69", mes_licenc: 11, cod_seguranca: "52451616688", alugado_a: "FABRICA", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 6, nome: "DOBLO CINZA", fabricante: "Fiat", modelo: "DOBLO RIO REAL", ano_fab_mod: "2015", estado: "BA", titularidade: "ALS ROCHA TRANSPORTES", renavam: "1213653212", placa: "QWZ4H07", mes_licenc: 10, cod_seguranca: "5445556855", alugado_a: "PREFEITURA DE RIO REAL", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 7, nome: "CAMINHAO DE VAQUEJADA", fabricante: "Ford", modelo: "CARGO 8.150E", ano_fab_mod: "2010", estado: "BA", titularidade: "ALS ROCHA TRANSPORTES", renavam: "196264634", placa: "JSZ5H06", mes_licenc: 9, cod_seguranca: "86561493634", alugado_a: "USO PESSOAL", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 8, nome: "KWID PRATA", fabricante: "Renault", modelo: "KWID PAULO BORGES", ano_fab_mod: "2022", estado: "BA", titularidade: "ALS ROCHA TRANSPORTES", renavam: "1258539613", placa: "RDC8B45", mes_licenc: 9, cod_seguranca: "49014171554", alugado_a: "PREFEITURA DE ITAPICURU", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 9, nome: "PIPA AMARELO", fabricante: "Mercedes", modelo: "PIPA AMARELO 1113 78", ano_fab_mod: "1978", estado: "BA", titularidade: "LOURIVANIA", renavam: "121427579", placa: "KBD4F70", mes_licenc: 11, cod_seguranca: "45168078147", alugado_a: "PREFEITURA CRISOPOLIS", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 10, nome: "GOL CINZA", fabricante: "VW", modelo: "GOL CINZA G4", ano_fab_mod: "2011", estado: "BA", titularidade: "DAMISSON BISPO", renavam: "1010262006", placa: "QKN1F39", mes_licenc: 11, cod_seguranca: "46544550645", alugado_a: "PREFEITURA DDE ITAPICURU", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 11, nome: "710 BRANCA", fabricante: "Mercedes", modelo: "MERCEDES BRANCA 2008", ano_fab_mod: "2008", estado: "BA", titularidade: "LOURIVANIA", renavam: "975473417", placa: "JHK2267", mes_licenc: 10, cod_seguranca: "8654041618", alugado_a: "FABRICA", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 12, nome: "PIPA BRANCO 1418", fabricante: "Mercedes", modelo: "PIPA BRANCO1418 E 95", ano_fab_mod: "1995", estado: "BA", titularidade: "LOURIVANIA", renavam: "639457070", placa: "HZI7A08", mes_licenc: 10, cod_seguranca: "46468158296", alugado_a: "TRAMAK", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 13, nome: "CACAMBA BRANCA 24X280", fabricante: "VW", modelo: "24X280 BRANCA 2012", ano_fab_mod: "2012", estado: "BA", titularidade: "ALS ROCHA TRANSPORTES", renavam: "531947092", placa: "OLE2A96", mes_licenc: 9, cod_seguranca: "41659608176", alugado_a: "DM MIRANGABA", seguradora: "Protege", valor_seguro: 230 }
-    ];
-
-    const baseTitulares = [
-      { id: 1, nome: "ANA LUIZA", cpf_cnpj: "", telefone: "" },
-      { id: 2, nome: "VINICIUS", cpf_cnpj: "", telefone: "" },
-      { id: 3, nome: "JOSE ROQUE", cpf_cnpj: "", telefone: "" },
-      { id: 4, nome: "JOABISON", cpf_cnpj: "", telefone: "" },
-      { id: 5, nome: "LOURIVANIA", cpf_cnpj: "", telefone: "" },
-      { id: 6, nome: "ALS ROCHA TRANSPORTES", cpf_cnpj: "", telefone: "" },
-      { id: 7, nome: "DAMISSON BISPO", cpf_cnpj: "", telefone: "" },
-      { id: 8, nome: "LEDPUBLICIDADE", cpf_cnpj: "", telefone: "" }
-    ];
-
-    const baseClientes = [
-      { id: 1, nome: "PREFEITURA DE RIO REAL", cpf_cnpj: "", responsavel: "Secretaria de Obras", telefone: "" },
-      { id: 2, nome: "PREFEITURA DE INHAMBUPE", cpf_cnpj: "", responsavel: "Transportes", telefone: "" },
-      { id: 3, nome: "PREFEITURA DE ITAPICURU", cpf_cnpj: "", responsavel: "Administração", telefone: "" },
-      { id: 4, nome: "PREFEITURA CRISOPOLIS", cpf_cnpj: "", responsavel: "Gabinete", telefone: "" },
-      { id: 5, nome: "FABRICA", cpf_cnpj: "", responsavel: "Logística", telefone: "" },
-      { id: 6, nome: "TRAMAK", cpf_cnpj: "", responsavel: "Operacional", telefone: "" },
-      { id: 7, nome: "DM MIRANGABA", cpf_cnpj: "", responsavel: "Diretoria", telefone: "" }
-    ];
-
-    const baseManutencoes = [
-      { id: 1, veiculo: "PIPA VERMELHO", placa: "GTQ9A58", tipo: "Troca de Óleo e Filtros", oficina: "Auto Peças Nordeste", custo: 850, data: "2026-08-10", proxima: "10.000 km", status: "Concluída" },
-      { id: 2, veiculo: "FORD CARGO 816", placa: "OIJ9E69", tipo: "Pastilhas e Freio a Ar", oficina: "Freios & CIA", custo: 1200, data: "2026-09-02", proxima: "2027-03-01", status: "Concluída" },
-      { id: 3, veiculo: "KWID PRATA", placa: "RDC8B45", tipo: "Revisão 40.000 KM", oficina: "Concessionária", custo: 680, data: "2026-09-15", proxima: "50.000 km", status: "Agendada" }
-    ];
-
-    let veiculos = JSON.parse(localStorage.getItem('frota_veiculos')) || baseVeiculos;
-    let titulares = JSON.parse(localStorage.getItem('frota_titulares')) || baseTitulares;
-    let clientes = JSON.parse(localStorage.getItem('frota_clientes')) || baseClientes;
-    let manutencoes = JSON.parse(localStorage.getItem('frota_manutencoes')) || baseManutencoes;
-
     const hoje = new Date();
     const mesAtual = hoje.getMonth() + 1;
     document.getElementById('current-date').innerText = hoje.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
 
-    // CARREGAR DADOS NA TELA IMEDIATAMENTE (NUNCA DEIXAR TELA VAZIA)
-    renderTudo();
+    // ESTADO LOCAL
+    let veiculos = [];
+    let titulares = [];
+    let clientes = [];
+    let manutencoes = [];
 
-    // INICIALIZAÇÃO DO SUPABASE
+    // SUPABASE CLIENT
     const SUPABASE_URL = "https://kflqnwiwkpxrebwrsavg.supabase.co";
     const SUPABASE_KEY = "sb_publishable_yo9lCkKKQMum2ki7piDlMQ_rBXJY0nT";
     let supabase = null;
 
-    if (window.supabase) {
-      try {
+    function initSupabase() {
+      if (window.supabase && window.supabase.createClient) {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-      } catch (e) {
-        console.warn("Erro ao instanciar Supabase:", e);
       }
     }
 
-    // SINCRONIZAÇÃO RESILIENTE COM SUPABASE
     async function carregarTudoDaNuvem() {
       const statusEl = document.getElementById('cloud-status-indicator');
-      statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Verificando...`;
+      initSupabase();
 
       if (!supabase) {
-        statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> Modo Local (Offline)`;
+        statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span> Carregando CDN...`;
+        setTimeout(carregarTudoDaNuvem, 500);
         return;
       }
 
-      // Função com timeout de 4 segundos para nunca travar
-      const withTimeout = (promise, ms = 4000) => {
-        return Promise.race([
-          promise,
-          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
-        ]);
-      };
+      statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Sincronizando...`;
 
       try {
-        const { data: vData, error: vErr } = await withTimeout(supabase.from('veiculos').select('*').order('cod', { ascending: true }));
+        const [vRes, tRes, cRes, mRes] = await Promise.all([
+          supabase.from('veiculos').select('*').order('cod', { ascending: true }),
+          supabase.from('titulares').select('*').order('nome', { ascending: true }),
+          supabase.from('clientes').select('*').order('id', { ascending: true }),
+          supabase.from('manutencoes').select('*').order('id', { ascending: false })
+        ]);
 
-        if (vErr) {
-          console.warn("Aviso Supabase:", vErr);
-          // Se o erro indicar que a tabela não existe
-          if (vErr.code === '42P01' || (vErr.message && vErr.message.includes('relation'))) {
-            document.getElementById('banner-sql-warning').classList.remove('hidden');
-            statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span> Criar Tabelas SQL`;
-          } else {
-            statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-400"></span> Erro de Acesso`;
-          }
-          return;
+        if (vRes.data && vRes.data.length > 0) {
+          veiculos = vRes.data;
+        }
+        if (tRes.data && tRes.data.length > 0) {
+          titulares = tRes.data;
+        }
+        if (cRes.data && cRes.data.length > 0) {
+          clientes = cRes.data;
+        }
+        if (mRes.data && mRes.data.length > 0) {
+          manutencoes = mRes.data;
         }
 
-        document.getElementById('banner-sql-warning').classList.add('hidden');
-
-        if (vData && vData.length > 0) {
-          veiculos = vData;
-          localStorage.setItem('frota_veiculos', JSON.stringify(veiculos));
-          statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Supabase Conectado`;
-        } else {
-          // Tabelas existem, mas estão vazias
-          document.getElementById('banner-bootstrap').classList.remove('hidden');
-          statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Conectado (Vazio)`;
-        }
-
-        // Buscar titulares
-        const { data: tData } = await withTimeout(supabase.from('titulares').select('*').order('nome', { ascending: true }));
-        if (tData && tData.length > 0) {
-          titulares = tData;
-          localStorage.setItem('frota_titulares', JSON.stringify(titulares));
-        }
-
-        // Buscar clientes
-        const { data: cData } = await withTimeout(supabase.from('clientes').select('*').order('id', { ascending: true }));
-        if (cData && cData.length > 0) {
-          clientes = cData;
-          localStorage.setItem('frota_clientes', JSON.stringify(clientes));
-        }
-
-        // Buscar manutenções
-        const { data: mData } = await withTimeout(supabase.from('manutencoes').select('*').order('id', { ascending: false }));
-        if (mData && mData.length > 0) {
-          manutencoes = mData;
-          localStorage.setItem('frota_manutencoes', JSON.stringify(manutencoes));
-        }
-
+        statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Supabase Conectado`;
       } catch (err) {
-        console.warn("Supabase timeout ou indisponível:", err);
-        statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> Modo Local (Offline)`;
+        console.error("Erro na sincronização:", err);
+        statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-400"></span> Erro de Rede`;
       }
 
       renderTudo();
     }
 
-    // GRAVAR PLANILHA NO SUPABASE
-    async function carregarPlanilhaParaSupabase() {
-      if (!supabase) return;
-      const btn = event.target;
-      btn.innerText = "Gravando...";
-      btn.disabled = true;
-
-      try {
-        await supabase.from('titulares').insert(titulares.map(t => ({ nome: t.nome, cpf_cnpj: t.cpf_cnpj || null, telefone: t.telefone || null })));
-        await supabase.from('clientes').insert(clientes.map(c => ({ nome: c.nome, cpf_cnpj: c.cpf_cnpj || null, responsavel: c.responsavel || null, telefone: c.telefone || null })));
-        await supabase.from('veiculos').insert(veiculos.map(v => ({
-          nome: v.nome, fabricante: v.fabricante, modelo: v.modelo, ano_fab_mod: v.ano_fab_mod,
-          estado: v.estado, titularidade: v.titularidade, renavam: v.renavam, placa: v.placa,
-          mes_licenc: v.mes_licenc, cod_seguranca: v.cod_seguranca, alugado_a: v.alugado_a,
-          seguradora: v.seguradora, valor_seguro: v.valor_seguro
-        })));
-        await supabase.from('manutencoes').insert(manutencoes.map(m => ({
-          veiculo: m.veiculo, placa: m.placa, tipo: m.tipo, oficina: m.oficina, custo: m.custo, data: m.data, proxima: m.proxima, status: m.status
-        })));
-
-        document.getElementById('banner-bootstrap').classList.add('hidden');
-        alert("Todos os dados foram gravados na nuvem com sucesso!");
-        carregarTudoDaNuvem();
-      } catch (err) {
-        alert("Erro ao gravar dados: " + err.message);
-        btn.innerText = "Gravar Dados no Supabase";
-        btn.disabled = false;
-      }
-    }
-
-    // RENDERIZAR TUDO NA INTERFACE
     function renderTudo() {
       atualizarDatalists();
       renderDashboard();
@@ -739,7 +602,7 @@
             <div class="flex items-center gap-3">
               <span class="p-2 bg-rose-500/20 text-rose-400 rounded-lg text-sm"><i class="fa-solid fa-id-card"></i></span>
               <div>
-                <p class="text-xs font-bold text-rose-300">Licenciamento / IPVA com Vencimento este Mês (Mês ${mesAtual})</p>
+                <p class="text-xs font-bold text-rose-300">Licenciamento / IPVA Vence este Mês (Mês ${mesAtual})</p>
                 <p class="text-[11px] text-slate-300">Veículo: <strong class="text-white">${v.nome}</strong> | Placa: <strong class="text-white font-mono">${v.placa}</strong> | Titular: ${v.titularidade || '-'}</p>
               </div>
             </div>
@@ -766,25 +629,8 @@
         `;
       });
 
-      const agendadas = manutencoes.filter(m => m.status === 'Agendada');
-      agendadas.forEach(m => {
-        alertasCount++;
-        lista.innerHTML += `
-          <div class="flex items-center justify-between p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl">
-            <div class="flex items-center gap-3">
-              <span class="p-2 bg-amber-500/20 text-amber-400 rounded-lg text-sm"><i class="fa-solid fa-screwdriver-wrench"></i></span>
-              <div>
-                <p class="text-xs font-bold text-amber-300">Manutenção / Revisão Agendada</p>
-                <p class="text-[11px] text-slate-300">Veículo: <strong class="text-white">${m.veiculo} (${m.placa})</strong> | Serviço: ${m.tipo} | Oficina: ${m.oficina}</p>
-              </div>
-            </div>
-            <span class="px-2.5 py-1 bg-amber-500/20 text-amber-300 font-bold rounded-md text-[10px] uppercase border border-amber-500/40">Agendada</span>
-          </div>
-        `;
-      });
-
       if (alertasCount === 0) {
-        lista.innerHTML = `<div class="p-4 text-center text-slate-500 text-xs">Nenhum alerta imediato no momento. Toda a documentação e manutenções em dia.</div>`;
+        lista.innerHTML = `<div class="p-4 text-center text-slate-400 text-xs">Nenhum alerta imediato no momento. Toda a documentação está em dia.</div>`;
       }
 
       const grid = document.getElementById('grid-meses');
@@ -822,16 +668,12 @@
       };
 
       if (supabase) {
-        try {
-          await supabase.from('veiculos').insert([novo]);
-        } catch (e) {
-          console.warn("Erro ao salvar veículo no Supabase:", e);
+        const { error } = await supabase.from('veiculos').insert([novo]);
+        if (error) {
+          alert('Erro ao salvar no Supabase: ' + error.message);
+          return;
         }
       }
-
-      novo.cod = veiculos.length + 1;
-      veiculos.unshift(novo);
-      localStorage.setItem('frota_veiculos', JSON.stringify(veiculos));
 
       alert(`Veículo ${novo.nome} (${novo.placa}) salvo com sucesso!`);
       event.target.reset();
@@ -848,16 +690,12 @@
       };
 
       if (supabase) {
-        try {
-          await supabase.from('titulares').insert([novo]);
-        } catch (e) {
-          console.warn("Erro ao salvar titular no Supabase:", e);
+        const { error } = await supabase.from('titulares').insert([novo]);
+        if (error) {
+          alert('Erro ao salvar titular: ' + error.message);
+          return;
         }
       }
-
-      novo.id = titulares.length + 1;
-      titulares.unshift(novo);
-      localStorage.setItem('frota_titulares', JSON.stringify(titulares));
 
       alert(`Titular ${novo.nome} cadastrado com sucesso!`);
       event.target.reset();
@@ -875,16 +713,12 @@
       };
 
       if (supabase) {
-        try {
-          await supabase.from('clientes').insert([novo]);
-        } catch (e) {
-          console.warn("Erro ao salvar cliente no Supabase:", e);
+        const { error } = await supabase.from('clientes').insert([novo]);
+        if (error) {
+          alert('Erro ao salvar cliente: ' + error.message);
+          return;
         }
       }
-
-      novo.id = clientes.length + 1;
-      clientes.unshift(novo);
-      localStorage.setItem('frota_clientes', JSON.stringify(clientes));
 
       alert(`Cliente ${novo.nome} cadastrado com sucesso!`);
       event.target.reset();
@@ -929,20 +763,18 @@
               </span>
             </td>
             <td class="p-2.5 text-right">
-              <button onclick="removerVeiculo(${v.cod}, '${v.placa}')" class="text-rose-400 hover:text-rose-300 p-1" title="Excluir"><i class="fa-regular fa-trash-can"></i></button>
+              <button onclick="removerVeiculo('${v.placa}')" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-regular fa-trash-can"></i></button>
             </td>
           </tr>
         `;
       });
     }
 
-    async function removerVeiculo(cod, placa) {
-      if (!confirm(`Deseja excluir o veículo ${placa}?`)) return;
+    async function removerVeiculo(placa) {
+      if (!confirm(`Deseja excluir o veículo de placa ${placa}?`)) return;
       if (supabase) {
-        try { await supabase.from('veiculos').delete().eq('placa', placa); } catch (e) {}
+        await supabase.from('veiculos').delete().eq('placa', placa);
       }
-      veiculos = veiculos.filter(v => v.placa !== placa);
-      localStorage.setItem('frota_veiculos', JSON.stringify(veiculos));
       carregarTudoDaNuvem();
     }
 
@@ -965,11 +797,7 @@
 
     async function removerTitular(nome) {
       if (!confirm(`Remover titular ${nome}?`)) return;
-      if (supabase) {
-        try { await supabase.from('titulares').delete().eq('nome', nome); } catch (e) {}
-      }
-      titulares = titulares.filter(t => t.nome !== nome);
-      localStorage.setItem('frota_titulares', JSON.stringify(titulares));
+      if (supabase) await supabase.from('titulares').delete().eq('nome', nome);
       carregarTudoDaNuvem();
     }
 
@@ -994,11 +822,7 @@
 
     async function removerCliente(nome) {
       if (!confirm(`Remover cliente ${nome}?`)) return;
-      if (supabase) {
-        try { await supabase.from('clientes').delete().eq('nome', nome); } catch (e) {}
-      }
-      clientes = clientes.filter(c => c.nome !== nome);
-      localStorage.setItem('frota_clientes', JSON.stringify(clientes));
+      if (supabase) await supabase.from('clientes').delete().eq('nome', nome);
       carregarTudoDaNuvem();
     }
 
@@ -1069,11 +893,8 @@
       };
 
       if (supabase) {
-        try { await supabase.from('manutencoes').insert([nova]); } catch (e) {}
+        await supabase.from('manutencoes').insert([nova]);
       }
-
-      manutencoes.unshift(nova);
-      localStorage.setItem('frota_manutencoes', JSON.stringify(manutencoes));
       carregarTudoDaNuvem();
     }
 
@@ -1110,7 +931,7 @@
       document.getElementById(`btn-sub-${formTipo}`).className = "px-4 py-2 rounded-xl text-xs font-bold bg-rr-blue text-white shadow";
     }
 
-    // DISPARAR SINCRONIZAÇÃO EM SEGUNDO PLANO
+    // Inicialização ao carregar
     carregarTudoDaNuvem();
   </script>
 </body>
