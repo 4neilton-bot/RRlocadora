@@ -36,26 +36,32 @@
     }
   </style>
 </head>
-<body class="bg-rr-navy text-slate-100 font-sans min-h-screen flex">
+<body class="bg-rr-navy text-slate-100 font-sans min-h-screen flex flex-col md:flex-row overflow-x-hidden">
 
-  <!-- BARRA LATERAL -->
-  <aside class="w-68 bg-rr-surface border-r border-rr-border flex flex-col justify-between shrink-0 select-none">
+  <!-- OVERLAY ESCURO PARA MOBILE -->
+  <div id="mobile-overlay" onclick="toggleSidebar(false)" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-30 hidden md:hidden transition-opacity duration-300"></div>
+
+  <!-- BARRA LATERAL (DRAWER NO MOBILE, FIXA NO DESKTOP) -->
+  <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-40 w-72 md:w-68 bg-rr-surface border-r border-rr-border flex flex-col justify-between shrink-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out select-none shadow-2xl md:shadow-none">
     <div>
-      <!-- LOGO RR -->
-      <div class="p-4 border-b border-rr-border/80">
-        <div class="logo-gradient-box rounded-xl p-3 border border-sky-300 shadow-md flex flex-col items-center justify-center">
-          <div class="text-3xl font-black italic tracking-tighter text-[#0a1b5c] drop-shadow-sm font-sans" style="transform: skew(-6deg);">
+      <!-- LOGO RR + BOTÃO FECHAR NO MOBILE -->
+      <div class="p-4 border-b border-rr-border/80 flex items-center justify-between">
+        <div class="logo-gradient-box rounded-xl p-2.5 border border-sky-300 shadow-md flex flex-col items-center justify-center flex-1">
+          <div class="text-2xl md:text-3xl font-black italic tracking-tighter text-[#0a1b5c] drop-shadow-sm font-sans" style="transform: skew(-6deg);">
             RR
           </div>
           <div class="metallic-badge rounded px-2 py-0.5 mt-1 border border-slate-400/80 flex items-center gap-1.5 w-full justify-center">
             <span class="w-1 h-1 rounded-full bg-slate-500"></span>
-            <span class="text-[9px] font-extrabold uppercase tracking-widest text-slate-800">Transportes e Locações</span>
+            <span class="text-[8px] md:text-[9px] font-extrabold uppercase tracking-widest text-slate-800">Transportes e Locações</span>
             <span class="w-1 h-1 rounded-full bg-slate-500"></span>
           </div>
         </div>
+        <button onclick="toggleSidebar(false)" class="md:hidden ml-3 p-2 text-slate-400 hover:text-white text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
 
-      <!-- STATUS DA NUVEM -->
+      <!-- STATUS DO BANCO DE DADOS -->
       <div class="px-4 py-2.5 border-b border-rr-border/50 flex items-center justify-between text-[11px]">
         <span class="text-slate-400">Banco de Dados:</span>
         <span id="cloud-status-indicator" class="flex items-center gap-1.5 font-semibold text-emerald-400">
@@ -64,32 +70,32 @@
       </div>
 
       <!-- NAVEGAÇÃO -->
-      <nav class="p-3 space-y-1.5 text-xs font-semibold">
-        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition bg-rr-blue text-white shadow-md shadow-blue-900/30">
+      <nav class="p-3 space-y-1 text-xs font-semibold">
+        <button onclick="navigateTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition bg-rr-blue text-white shadow-md shadow-blue-900/30">
           <i class="fa-solid fa-triangle-exclamation w-4 text-sky-300"></i>
           <span>Alertas & Prazos</span>
         </button>
-        <button onclick="switchTab('cadastros')" id="nav-cadastros" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
+        <button onclick="navigateTab('cadastros')" id="nav-cadastros" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
           <i class="fa-solid fa-square-plus w-4 text-sky-400"></i>
           <span>Cadastros (3 em 1)</span>
         </button>
-        <button onclick="switchTab('veiculos')" id="nav-veiculos" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
+        <button onclick="navigateTab('veiculos')" id="nav-veiculos" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
           <i class="fa-solid fa-truck-moving w-4 text-sky-400"></i>
           <span>Veículos da Frota</span>
         </button>
-        <button onclick="switchTab('titulares')" id="nav-titulares" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
+        <button onclick="navigateTab('titulares')" id="nav-titulares" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
           <i class="fa-solid fa-id-card-clip w-4 text-sky-400"></i>
           <span>Titulares (PF/PJ)</span>
         </button>
-        <button onclick="switchTab('clientes')" id="nav-clientes" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
+        <button onclick="navigateTab('clientes')" id="nav-clientes" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
           <i class="fa-solid fa-building-user w-4 text-sky-400"></i>
           <span>Clientes / Alocação</span>
         </button>
-        <button onclick="switchTab('seguros')" id="nav-seguros" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
+        <button onclick="navigateTab('seguros')" id="nav-seguros" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
           <i class="fa-solid fa-shield-halved w-4 text-sky-400"></i>
           <span>Seguros & Rastreio</span>
         </button>
-        <button onclick="switchTab('manutencoes')" id="nav-manutencoes" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
+        <button onclick="navigateTab('manutencoes')" id="nav-manutencoes" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
           <i class="fa-solid fa-screwdriver-wrench w-4 text-sky-400"></i>
           <span>Manutenções</span>
         </button>
@@ -101,81 +107,130 @@
     </div>
   </aside>
 
-  <!-- CONTEÚDO PRINCIPAL -->
-  <main class="flex-1 flex flex-col h-screen overflow-y-auto">
-    <!-- Header Superior -->
-    <header class="h-14 bg-rr-surface/90 backdrop-blur-md border-b border-rr-border px-6 flex items-center justify-between sticky top-0 z-20">
-      <div id="section-title" class="text-sm font-bold text-white tracking-wide flex items-center gap-2">
-        <i class="fa-solid fa-bell text-sky-400"></i> Central de Notificações e Vencimentos
+  <!-- ÁREA PRINCIPAL -->
+  <main class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
+    <!-- Header Superior com Botão Hambúrguer Mobile -->
+    <header class="h-14 bg-rr-surface/90 backdrop-blur-md border-b border-rr-border px-4 md:px-6 flex items-center justify-between sticky top-0 z-20 shrink-0">
+      <div class="flex items-center gap-3 min-w-0">
+        <!-- BOTÃO DE ABRIR MENU (SÓ VISÍVEL EM CELULAR) -->
+        <button onclick="toggleSidebar(true)" class="md:hidden p-2 text-slate-300 hover:text-white bg-rr-card border border-rr-border rounded-lg text-sm">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div id="section-title" class="text-xs md:text-sm font-bold text-white tracking-wide truncate flex items-center gap-2">
+          <i class="fa-solid fa-bell text-sky-400"></i> Central de Notificações e Vencimentos
+        </div>
       </div>
-      <div class="flex items-center gap-3 text-xs">
-        <span id="current-date" class="text-slate-400"></span>
-        <button onclick="carregarDadosSupabase()" title="Atualizar dados da Nuvem" class="px-2.5 py-1.5 rounded-lg bg-rr-card hover:bg-rr-border text-sky-300 border border-rr-border transition flex items-center gap-1.5 font-semibold">
-          <i class="fa-solid fa-arrows-rotate"></i> Atualizar
+      <div class="flex items-center gap-2 md:gap-3 text-xs shrink-0">
+        <span id="current-date" class="hidden sm:inline text-slate-400 text-[11px]"></span>
+        <button onclick="carregarDadosSupabase()" title="Atualizar dados da Nuvem" class="px-2.5 py-1.5 rounded-lg bg-rr-card hover:bg-rr-border text-sky-300 border border-rr-border transition flex items-center gap-1.5 font-semibold text-xs">
+          <i class="fa-solid fa-arrows-rotate"></i>
+          <span class="hidden sm:inline">Atualizar</span>
         </button>
       </div>
     </header>
 
-    <div class="p-6 space-y-6">
+    <div class="p-4 md:p-6 space-y-6">
 
       <!-- ABA 1: DASHBOARD & ALERTAS -->
       <section id="tab-dashboard" class="space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div class="bg-rr-card border border-rr-border rounded-xl p-4">
-            <div class="text-slate-400 text-[11px] font-bold uppercase">Total da Frota</div>
-            <div class="text-2xl font-black text-white mt-1" id="stat-total-frota">0</div>
-            <div class="text-[11px] text-slate-400 mt-0.5">Veículos registrados</div>
+        <!-- Indicadores Rápidos -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+          <div class="bg-rr-card border border-rr-border rounded-xl p-3.5 md:p-4">
+            <div class="text-slate-400 text-[10px] md:text-[11px] font-bold uppercase">Total da Frota</div>
+            <div class="text-xl md:text-2xl font-black text-white mt-1" id="stat-total-frota">0</div>
+            <div class="text-[10px] md:text-[11px] text-slate-400 mt-0.5">Veículos registrados</div>
           </div>
-          <div class="bg-rr-card border border-rr-border rounded-xl p-4">
-            <div class="text-slate-400 text-[11px] font-bold uppercase">Alugados / Alocados</div>
-            <div class="text-2xl font-black text-amber-400 mt-1" id="stat-alugados">0</div>
-            <div class="text-[11px] text-slate-400 mt-0.5">Operando com clientes</div>
+          <div class="bg-rr-card border border-rr-border rounded-xl p-3.5 md:p-4">
+            <div class="text-slate-400 text-[10px] md:text-[11px] font-bold uppercase">Alugados / Alocados</div>
+            <div class="text-xl md:text-2xl font-black text-amber-400 mt-1" id="stat-alugados">0</div>
+            <div class="text-[10px] md:text-[11px] text-slate-400 mt-0.5">Em operação</div>
           </div>
-          <div class="bg-rr-card border border-rr-border rounded-xl p-4">
-            <div class="text-slate-400 text-[11px] font-bold uppercase">Licenciamentos no Mês</div>
-            <div class="text-2xl font-black text-rose-400 mt-1" id="stat-licenc-mes">0</div>
-            <div class="text-[11px] text-slate-400 mt-0.5">Atenção ao IPVA/Detran</div>
+          <div class="bg-rr-card border border-rr-border rounded-xl p-3.5 md:p-4">
+            <div class="text-slate-400 text-[10px] md:text-[11px] font-bold uppercase">Licenciamento (Mês)</div>
+            <div class="text-xl md:text-2xl font-black text-rose-400 mt-1" id="stat-licenc-mes">0</div>
+            <div class="text-[10px] md:text-[11px] text-slate-400 mt-0.5">Vencendo agora</div>
           </div>
-          <div class="bg-rr-card border border-rr-border rounded-xl p-4">
-            <div class="text-slate-400 text-[11px] font-bold uppercase">Custo Mensal de Seguro</div>
-            <div class="text-2xl font-black text-emerald-400 mt-1" id="stat-custo-seguro">R$ 0,00</div>
-            <div class="text-[11px] text-slate-400 mt-0.5">Apólices ativas</div>
+          <div class="bg-rr-card border border-rr-border rounded-xl p-3.5 md:p-4">
+            <div class="text-slate-400 text-[10px] md:text-[11px] font-bold uppercase">Custo Seguro / Mês</div>
+            <div class="text-xl md:text-2xl font-black text-emerald-400 mt-1" id="stat-custo-seguro">R$ 0</div>
+            <div class="text-[10px] md:text-[11px] text-slate-400 mt-0.5">Apólices ativas</div>
           </div>
         </div>
 
-        <div class="bg-rr-card border border-rr-border rounded-xl p-5">
-          <div class="flex items-center justify-between mb-4 border-b border-rr-border/60 pb-3">
+        <!-- Alertas Imediatos -->
+        <div class="bg-rr-card border border-rr-border rounded-xl p-4 md:p-5">
+          <div class="flex items-center justify-between mb-3.5 border-b border-rr-border/60 pb-3">
             <div class="flex items-center gap-2">
               <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
-              <h3 class="text-sm font-bold text-white">Vencimentos e Alertas Imediatos</h3>
+              <h3 class="text-xs md:text-sm font-bold text-white">Vencimentos e Alertas Imediatos</h3>
             </div>
-            <span class="text-[11px] text-slate-400">Verificação automática preventiva</span>
+            <span class="text-[10px] md:text-[11px] text-slate-400">Verificação automática</span>
           </div>
           <div id="lista-alertas" class="space-y-2.5"></div>
         </div>
 
-        <div class="bg-rr-card border border-rr-border rounded-xl p-5">
-          <h3 class="text-xs font-bold text-sky-400 uppercase tracking-wider mb-3">Cronograma Anual de Licenciamento (IPVA)</h3>
-          <div id="grid-meses" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-2 text-center text-xs"></div>
+        <!-- CRONOGRAMA ANUAL CLICÁVEL (INTERATIVO) -->
+        <div class="bg-rr-card border border-rr-border rounded-xl p-4 md:p-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3">
+            <div>
+              <h3 class="text-xs font-bold text-sky-400 uppercase tracking-wider">Cronograma Anual de Licenciamento (IPVA)</h3>
+              <p class="text-[11px] text-slate-400">Clique em qualquer mês para consultar a lista completa dos veículos</p>
+            </div>
+            <span class="text-[10px] text-slate-400 hidden sm:inline">Toque no card para detalhar</span>
+          </div>
+
+          <!-- Grade dos 12 meses como botões clicáveis -->
+          <div id="grid-meses" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-2 text-center text-xs"></div>
+
+          <!-- PAINEL DE CONSULTA DETALHADA DO MÊS SELECIONADO -->
+          <div id="detalhe-mes-selecionado" class="mt-4 pt-4 border-t border-rr-border/80">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 rounded bg-sky-500/20 text-sky-300 font-bold text-xs" id="badge-mes-nome">Mês Selecionado</span>
+                <span class="text-xs text-slate-300" id="badge-mes-contador">0 veículos encontrados</span>
+              </div>
+              <button id="btn-filtrar-veiculos-mes" class="px-3 py-1 bg-rr-navy border border-rr-border hover:border-sky-400 text-sky-300 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                <span>Abrir na aba de Veículos</span>
+                <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </button>
+            </div>
+
+            <!-- Tabela dos Veículos do Mês Selecionado -->
+            <div class="overflow-x-auto rounded-lg border border-rr-border">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-rr-surface text-slate-300 font-semibold uppercase text-[10px]">
+                  <tr>
+                    <th class="p-2.5">Cod</th>
+                    <th class="p-2.5">Veículo / Modelo</th>
+                    <th class="p-2.5">Placa</th>
+                    <th class="p-2.5">Renavam</th>
+                    <th class="p-2.5">Titularidade</th>
+                    <th class="p-2.5">Alocado A</th>
+                  </tr>
+                </thead>
+                <tbody id="corpo-tabela-mes-selecionado" class="divide-y divide-rr-border/60 bg-rr-navy/40"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </section>
 
       <!-- ABA 2: CADASTROS (3 FORMULÁRIOS) -->
       <section id="tab-cadastros" class="hidden space-y-6 max-w-5xl mx-auto">
-        <div class="flex items-center gap-2 border-b border-rr-border pb-3">
-          <button onclick="setCadForm('veiculo')" id="btn-sub-veiculo" class="px-4 py-2 rounded-xl text-xs font-bold bg-rr-blue text-white shadow">
-            <i class="fa-solid fa-truck-front mr-1.5"></i> 1. Cadastro de Veículo
+        <div class="flex flex-wrap items-center gap-2 border-b border-rr-border pb-3">
+          <button onclick="setCadForm('veiculo')" id="btn-sub-veiculo" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-rr-blue text-white shadow">
+            <i class="fa-solid fa-truck-front mr-1.5"></i> 1. Veículo
           </button>
-          <button onclick="setCadForm('titular')" id="btn-sub-titular" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-rr-card">
-            <i class="fa-solid fa-id-card mr-1.5"></i> 2. Cadastro de Titular
+          <button onclick="setCadForm('titular')" id="btn-sub-titular" class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-rr-card">
+            <i class="fa-solid fa-id-card mr-1.5"></i> 2. Titular
           </button>
-          <button onclick="setCadForm('cliente')" id="btn-sub-cliente" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-rr-card">
-            <i class="fa-solid fa-users mr-1.5"></i> 3. Cadastro de Clientes
+          <button onclick="setCadForm('cliente')" id="btn-sub-cliente" class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-rr-card">
+            <i class="fa-solid fa-users mr-1.5"></i> 3. Clientes
           </button>
         </div>
 
         <!-- FORMULÁRIO 1: VEÍCULOS -->
-        <div id="form-container-veiculo" class="bg-rr-card border border-rr-border rounded-xl p-6 shadow-xl space-y-5">
+        <div id="form-container-veiculo" class="bg-rr-card border border-rr-border rounded-xl p-4 md:p-6 shadow-xl space-y-4">
           <div class="border-b border-rr-border/80 pb-3">
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-car text-sky-400"></i> Ficha Cadastral do Veículo
@@ -276,7 +331,7 @@
         </div>
 
         <!-- FORMULÁRIO 2: TITULARES -->
-        <div id="form-container-titular" class="hidden bg-rr-card border border-rr-border rounded-xl p-6 shadow-xl space-y-5">
+        <div id="form-container-titular" class="hidden bg-rr-card border border-rr-border rounded-xl p-4 md:p-6 shadow-xl space-y-4">
           <div class="border-b border-rr-border/80 pb-3">
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-id-card text-sky-400"></i> Ficha Cadastral de Titular
@@ -309,7 +364,7 @@
         </div>
 
         <!-- FORMULÁRIO 3: CLIENTES -->
-        <div id="form-container-cliente" class="hidden bg-rr-card border border-rr-border rounded-xl p-6 shadow-xl space-y-5">
+        <div id="form-container-cliente" class="hidden bg-rr-card border border-rr-border rounded-xl p-4 md:p-6 shadow-xl space-y-4">
           <div class="border-b border-rr-border/80 pb-3">
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-building-user text-sky-400"></i> Ficha Cadastral de Cliente (Locatário)
@@ -355,18 +410,18 @@
 
       <!-- ABA 3: VEÍCULOS -->
       <section id="tab-veiculos" class="hidden space-y-4">
-        <div class="flex justify-between items-center bg-rr-card p-3 rounded-xl border border-rr-border gap-3">
+        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center bg-rr-card p-3 rounded-xl border border-rr-border gap-3">
           <div class="flex items-center gap-2 flex-1 max-w-md">
             <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs"></i>
             <input type="text" id="filtro-veiculo" oninput="renderVeiculos()" placeholder="Buscar por placa, nome, modelo ou titular..." class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-sky-400 outline-none" />
           </div>
-          <button onclick="switchTab('cadastros'); setCadForm('veiculo');" class="px-3.5 py-1.5 bg-rr-blue hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-2">
+          <button onclick="navigateTab('cadastros'); setCadForm('veiculo');" class="px-3.5 py-1.5 bg-rr-blue hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-2">
             <i class="fa-solid fa-plus"></i> Novo Veículo
           </button>
         </div>
 
-        <div class="bg-rr-card border border-rr-border rounded-xl overflow-hidden shadow">
-          <table class="w-full text-left text-xs">
+        <div class="bg-rr-card border border-rr-border rounded-xl overflow-x-auto shadow">
+          <table class="w-full text-left text-xs min-w-[650px]">
             <thead class="bg-rr-surface text-slate-300 uppercase font-semibold border-b border-rr-border">
               <tr>
                 <th class="p-2.5">Cod</th>
@@ -387,12 +442,12 @@
       <section id="tab-titulares" class="hidden space-y-4">
         <div class="flex justify-between items-center bg-rr-card p-3 rounded-xl border border-rr-border">
           <h3 class="text-xs font-bold text-white uppercase tracking-wider">Titulares Cadastrados</h3>
-          <button onclick="switchTab('cadastros'); setCadForm('titular');" class="px-3 py-1.5 bg-rr-blue hover:bg-blue-600 text-white rounded-lg text-xs font-bold">
+          <button onclick="navigateTab('cadastros'); setCadForm('titular');" class="px-3 py-1.5 bg-rr-blue hover:bg-blue-600 text-white rounded-lg text-xs font-bold">
             <i class="fa-solid fa-plus mr-1"></i> Novo Titular
           </button>
         </div>
-        <div class="bg-rr-card border border-rr-border rounded-xl overflow-hidden shadow">
-          <table class="w-full text-left text-xs">
+        <div class="bg-rr-card border border-rr-border rounded-xl overflow-x-auto shadow">
+          <table class="w-full text-left text-xs min-w-[500px]">
             <thead class="bg-rr-surface text-slate-300 uppercase font-semibold border-b border-rr-border">
               <tr>
                 <th class="p-2.5">Titular (PF/PJ)</th>
@@ -410,12 +465,12 @@
       <section id="tab-clientes" class="hidden space-y-4">
         <div class="flex justify-between items-center bg-rr-card p-3 rounded-xl border border-rr-border">
           <h3 class="text-xs font-bold text-white uppercase tracking-wider">Clientes & Locatários</h3>
-          <button onclick="switchTab('cadastros'); setCadForm('cliente');" class="px-3 py-1.5 bg-rr-blue hover:bg-blue-600 text-white rounded-lg text-xs font-bold">
+          <button onclick="navigateTab('cadastros'); setCadForm('cliente');" class="px-3 py-1.5 bg-rr-blue hover:bg-blue-600 text-white rounded-lg text-xs font-bold">
             <i class="fa-solid fa-plus mr-1"></i> Novo Cliente
           </button>
         </div>
-        <div class="bg-rr-card border border-rr-border rounded-xl overflow-hidden shadow">
-          <table class="w-full text-left text-xs">
+        <div class="bg-rr-card border border-rr-border rounded-xl overflow-x-auto shadow">
+          <table class="w-full text-left text-xs min-w-[550px]">
             <thead class="bg-rr-surface text-slate-300 uppercase font-semibold border-b border-rr-border">
               <tr>
                 <th class="p-2.5">ID</th>
@@ -433,40 +488,42 @@
 
       <!-- ABA 6: SEGUROS -->
       <section id="tab-seguros" class="hidden space-y-4">
-        <div class="bg-rr-card border border-rr-border rounded-xl p-5">
+        <div class="bg-rr-card border border-rr-border rounded-xl p-4 md:p-5">
           <div class="flex justify-between items-center mb-3">
             <h3 class="text-xs font-bold text-white uppercase tracking-wider">Apólices de Seguros & Proteção</h3>
             <div class="text-xs text-slate-400">Total Mensal: <span id="total-custo-seguro-tab" class="text-emerald-400 font-bold">R$ 0,00</span></div>
           </div>
-          <table class="w-full text-left text-xs">
-            <thead class="bg-rr-surface text-slate-300 uppercase font-semibold border-b border-rr-border">
-              <tr>
-                <th class="p-2.5">Veículo</th>
-                <th class="p-2.5">Placa</th>
-                <th class="p-2.5">Seguradora</th>
-                <th class="p-2.5">Mensalidade</th>
-                <th class="p-2.5">Status</th>
-              </tr>
-            </thead>
-            <tbody id="corpo-seguros" class="divide-y divide-rr-border/60"></tbody>
-          </table>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs min-w-[500px]">
+              <thead class="bg-rr-surface text-slate-300 uppercase font-semibold border-b border-rr-border">
+                <tr>
+                  <th class="p-2.5">Veículo</th>
+                  <th class="p-2.5">Placa</th>
+                  <th class="p-2.5">Seguradora</th>
+                  <th class="p-2.5">Mensalidade</th>
+                  <th class="p-2.5">Status</th>
+                </tr>
+              </thead>
+              <tbody id="corpo-seguros" class="divide-y divide-rr-border/60"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
       <!-- ABA 7: MANUTENÇÕES -->
       <section id="tab-manutencoes" class="hidden space-y-4">
-        <div class="flex justify-between items-center bg-rr-card p-3 rounded-xl border border-rr-border">
+        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center bg-rr-card p-3 rounded-xl border border-rr-border gap-2">
           <div>
             <h3 class="text-xs font-bold text-white">Ordens de Manutenção & Revisões</h3>
             <p class="text-[11px] text-slate-400">Controle preventivo de oficinas, pneus e trocas de óleo</p>
           </div>
-          <button onclick="abrirModalManutencao()" class="px-3.5 py-1.5 bg-rr-blue hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-2">
+          <button onclick="abrirModalManutencao()" class="px-3.5 py-1.5 bg-rr-blue hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-2">
             <i class="fa-solid fa-wrench"></i> Registrar Manutenção
           </button>
         </div>
 
-        <div class="bg-rr-card border border-rr-border rounded-xl overflow-hidden shadow">
-          <table class="w-full text-left text-xs">
+        <div class="bg-rr-card border border-rr-border rounded-xl overflow-x-auto shadow">
+          <table class="w-full text-left text-xs min-w-[550px]">
             <thead class="bg-rr-surface text-slate-300 uppercase font-semibold border-b border-rr-border">
               <tr>
                 <th class="p-2.5">Data</th>
@@ -487,53 +544,42 @@
   </main>
 
   <script>
-    // DADOS INICIAIS DE BACKUP IMEDIATO (GARANTIA CONTRA TELA BRANCA)
-    const backupVeiculos = [
-      { cod: 1, nome: "PIPA VERMELHO", fabricante: "Mercedes", modelo: "1418", titularidade: "ANA LUIZA", renavam: "268412258", placa: "GTQ9A58", mes_licenc: 10, cod_seguranca: "45835165555", alugado_a: null, seguradora: "FCK", valor_seguro: 200 },
-      { cod: 2, nome: "MOBI VENDIDO", fabricante: "Fiat", modelo: "MOBI 1", titularidade: "VINICIUS", renavam: "1121073090", placa: "PKM6651", mes_licenc: 7, cod_seguranca: "51516434054", alugado_a: "PREFEITURA DE RIO REAL", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 3, nome: "VOYAGE", fabricante: "VW", modelo: "VOYAGE BRANCO", titularidade: "JOSE ROQUE", renavam: "1112864420", placa: "QKZ2E42", mes_licenc: 7, cod_seguranca: "1112864420", alugado_a: "PREFEITURA DE RIO REAL", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 4, nome: "CACAMBA AZUL", fabricante: "Mercedes", modelo: "1113 72 INHAMBUPE", titularidade: "JOABISON", renavam: "205407285", placa: "MUK5911", mes_licenc: 7, cod_seguranca: "13433978188", alugado_a: "PREFEITURA DE INHAMBUPE", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 5, nome: "FORD CARGO 816", fabricante: "Ford", modelo: "CARGO FABRICA 8 160", titularidade: "LOURIVANIA", renavam: "496636154", placa: "OIJ9E69", mes_licenc: 11, cod_seguranca: "52451616688", alugado_a: "FABRICA", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 6, nome: "DOBLO CINZA", fabricante: "Fiat", modelo: "DOBLO RIO REAL", titularidade: "ALS ROCHA TRANSPORTES", renavam: "1213653212", placa: "QWZ4H07", mes_licenc: 10, cod_seguranca: "5445556855", alugado_a: "PREFEITURA DE RIO REAL", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 7, nome: "CAMINHAO DE VAQUEJADA", fabricante: "Ford", modelo: "CARGO 8.150E", titularidade: "ALS ROCHA TRANSPORTES", renavam: "196264634", placa: "JSZ5H06", mes_licenc: 9, cod_seguranca: "86561493634", alugado_a: "USO PESSOAL", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 8, nome: "KWID PRATA", fabricante: "Renault", modelo: "KWID PAULO BORGES", titularidade: "ALS ROCHA TRANSPORTES", renavam: "1258539613", placa: "RDC8B45", mes_licenc: 9, cod_seguranca: "49014171554", alugado_a: "PREFEITURA DE ITAPICURU", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 9, nome: "PIPA AMARELO", fabricante: "Mercedes", modelo: "PIPA AMARELO 1113 78", titularidade: "LOURIVANIA", renavam: "121427579", placa: "KBD4F70", mes_licenc: 11, cod_seguranca: "45168078147", alugado_a: "PREFEITURA CRISOPOLIS", seguradora: "Protege", valor_seguro: 230 },
-      { cod: 10, nome: "GOL CINZA", fabricante: "VW", modelo: "GOL CINZA G4", titularidade: "DAMISSON BISPO", renavam: "1010262006", placa: "QKN1F39", mes_licenc: 11, cod_seguranca: "46544550645", alugado_a: "PREFEITURA DDE ITAPICURU", seguradora: "Protege", valor_seguro: 230 }
-    ];
+    // CONTROLE DO SIDEBAR NO CELULAR
+    function toggleSidebar(abrir) {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('mobile-overlay');
+      if (abrir) {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+      }
+    }
 
-    const backupTitulares = [
-      { id: 1, nome: "ANA LUIZA", cpf_cnpj: "", telefone: "" },
-      { id: 2, nome: "VINICIUS", cpf_cnpj: "", telefone: "" },
-      { id: 3, nome: "JOSE ROQUE", cpf_cnpj: "", telefone: "" },
-      { id: 4, nome: "JOABISON", cpf_cnpj: "", telefone: "" },
-      { id: 5, nome: "LOURIVANIA", cpf_cnpj: "", telefone: "" },
-      { id: 6, nome: "ALS ROCHA TRANSPORTES", cpf_cnpj: "", telefone: "" },
-      { id: 7, nome: "DAMISSON BISPO", cpf_cnpj: "", telefone: "" }
-    ];
-
-    const backupClientes = [
-      { id: 1, nome: "PREFEITURA DE RIO REAL", cpf_cnpj: "", responsavel: "Secretaria de Obras", telefone: "" },
-      { id: 2, nome: "PREFEITURA DE INHAMBUPE", cpf_cnpj: "", responsavel: "Transportes", telefone: "" },
-      { id: 3, nome: "PREFEITURA DE ITAPICURU", cpf_cnpj: "", responsavel: "Administração", telefone: "" },
-      { id: 4, nome: "PREFEITURA CRISOPOLIS", cpf_cnpj: "", responsavel: "Gabinete", telefone: "" },
-      { id: 5, nome: "FABRICA", cpf_cnpj: "", responsavel: "Logística", telefone: "" },
-      { id: 6, nome: "TRAMAK", cpf_cnpj: "", responsavel: "Operacional", telefone: "" },
-      { id: 7, nome: "DM MIRANGABA", cpf_cnpj: "", responsavel: "Diretoria", telefone: "" }
-    ];
-
-    let veiculos = JSON.parse(localStorage.getItem('frota_veiculos')) || backupVeiculos;
-    let titulares = JSON.parse(localStorage.getItem('frota_titulares')) || backupTitulares;
-    let clientes = JSON.parse(localStorage.getItem('frota_clientes')) || backupClientes;
-    let manutencoes = JSON.parse(localStorage.getItem('frota_manutencoes')) || [];
+    function navigateTab(tab) {
+      switchTab(tab);
+      // Fecha a barra lateral no celular após tocar
+      if (window.innerWidth < 768) {
+        toggleSidebar(false);
+      }
+    }
 
     const hoje = new Date();
     const mesAtual = hoje.getMonth() + 1;
+    let mesFiltroSelecionado = mesAtual; // Mês ativo no cronograma
+    const nomesMesesCompletos = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    const nomesMesesCurto = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+
     document.getElementById('current-date').innerText = hoje.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
 
-    // CARREGA NA TELA DE IMEDIATO (SEM ESPERAR NINGUÉM)
-    renderTudo();
+    // ESTADO LOCAL
+    let veiculos = JSON.parse(localStorage.getItem('frota_veiculos')) || [];
+    let titulares = JSON.parse(localStorage.getItem('frota_titulares')) || [];
+    let clientes = JSON.parse(localStorage.getItem('frota_clientes')) || [];
+    let manutencoes = JSON.parse(localStorage.getItem('frota_manutencoes')) || [];
 
-    // COMUNICAÇÃO DIRETA HTTP COM SUPABASE
+    // SUPABASE REST
     const SUPABASE_BASE_URL = "https://kflqnwiwkpxrebwrsavg.supabase.co/rest/v1";
     const SUPABASE_API_KEY = "sb_publishable_yo9lCkKKQMum2ki7piDlMQ_rBXJY0nT";
 
@@ -594,7 +640,7 @@
       renderTudo();
     }
 
-    // RENDERIZAÇÃO
+    // RENDERIZADOR GERAL
     function renderTudo() {
       atualizarDatalists();
       renderDashboard();
@@ -623,6 +669,7 @@
       });
     }
 
+    // DASHBOARD E CRONOGRAMA INTERATIVO
     function renderDashboard() {
       const total = veiculos.length;
       const alugados = veiculos.filter(v => v.alugado_a && v.alugado_a.trim() !== '' && v.alugado_a !== 'USO PESSOAL').length;
@@ -634,6 +681,7 @@
       document.getElementById('stat-licenc-mes').innerText = vencendoEsteMes.length;
       document.getElementById('stat-custo-seguro').innerText = `R$ ${totalSeguro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
 
+      // Lista de Alertas Imediatos
       const lista = document.getElementById('lista-alertas');
       lista.innerHTML = '';
       let alertasCount = 0;
@@ -642,14 +690,14 @@
         alertasCount++;
         lista.innerHTML += `
           <div class="flex items-center justify-between p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl">
-            <div class="flex items-center gap-3">
-              <span class="p-2 bg-rose-500/20 text-rose-400 rounded-lg text-sm"><i class="fa-solid fa-id-card"></i></span>
-              <div>
-                <p class="text-xs font-bold text-rose-300">Licenciamento / IPVA Vence este Mês (Mês ${mesAtual})</p>
-                <p class="text-[11px] text-slate-300">Veículo: <strong class="text-white">${v.nome}</strong> | Placa: <strong class="text-white font-mono">${v.placa}</strong> | Titular: ${v.titularidade || '-'}</p>
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="p-2 bg-rose-500/20 text-rose-400 rounded-lg text-sm shrink-0"><i class="fa-solid fa-id-card"></i></span>
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-rose-300 truncate">Licenciamento Vence este Mês (Mês ${mesAtual})</p>
+                <p class="text-[11px] text-slate-300 truncate">Veículo: <strong class="text-white">${v.nome}</strong> | Placa: <strong class="text-white font-mono">${v.placa}</strong></p>
               </div>
             </div>
-            <span class="px-2.5 py-1 bg-rose-500 text-white font-bold rounded-md text-[10px] uppercase tracking-wider">Urgente</span>
+            <span class="px-2 py-0.5 bg-rose-500 text-white font-bold rounded text-[10px] uppercase tracking-wider shrink-0">Urgente</span>
           </div>
         `;
       });
@@ -660,14 +708,14 @@
         alertasCount++;
         lista.innerHTML += `
           <div class="flex items-center justify-between p-3 bg-sky-500/10 border border-sky-500/30 rounded-xl">
-            <div class="flex items-center gap-3">
-              <span class="p-2 bg-sky-500/20 text-sky-400 rounded-lg text-sm"><i class="fa-solid fa-calendar-days"></i></span>
-              <div>
-                <p class="text-xs font-bold text-sky-300">Aviso Prévio: Licenciamento no Próximo Mês (Mês ${proxMes})</p>
-                <p class="text-[11px] text-slate-300">Veículo: <strong class="text-white">${v.nome}</strong> | Placa: <strong class="text-white font-mono">${v.placa}</strong> | Titular: ${v.titularidade || '-'}</p>
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="p-2 bg-sky-500/20 text-sky-400 rounded-lg text-sm shrink-0"><i class="fa-solid fa-calendar-days"></i></span>
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-sky-300 truncate">Planejar Licenciamento do Próximo Mês (Mês ${proxMes})</p>
+                <p class="text-[11px] text-slate-300 truncate">Veículo: <strong class="text-white">${v.nome}</strong> | Placa: <strong class="text-white font-mono">${v.placa}</strong></p>
               </div>
             </div>
-            <span class="px-2.5 py-1 bg-sky-500/20 text-sky-300 font-bold rounded-md text-[10px] uppercase border border-sky-500/40">Planejar</span>
+            <span class="px-2 py-0.5 bg-sky-500/20 text-sky-300 font-bold rounded text-[10px] uppercase border border-sky-500/40 shrink-0">Planejar</span>
           </div>
         `;
       });
@@ -676,22 +724,91 @@
         lista.innerHTML = `<div class="p-4 text-center text-slate-400 text-xs">Nenhum alerta imediato no momento. Toda a documentação está em dia.</div>`;
       }
 
+      // Renderizar Grade de 12 Meses (Clicáveis)
+      renderGridMeses();
+      renderDetalheMesSelecionado();
+    }
+
+    function renderGridMeses() {
       const grid = document.getElementById('grid-meses');
-      const mesesNomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
       grid.innerHTML = '';
+
       for (let i = 1; i <= 12; i++) {
         const count = veiculos.filter(v => Number(v.mes_licenc) === i).length;
+        const isSelected = i === mesFiltroSelecionado;
         const isCurrent = i === mesAtual;
+
+        let activeClasses = "bg-rr-navy/60 border-rr-border text-slate-400 hover:border-sky-500/50 hover:bg-rr-navy";
+        if (isSelected) {
+          activeClasses = "bg-sky-500/20 border-sky-400 text-sky-300 font-bold ring-2 ring-sky-500/40 shadow-lg shadow-sky-500/10";
+        } else if (isCurrent) {
+          activeClasses = "bg-rose-500/10 border-rose-500/40 text-rose-300 font-bold";
+        }
+
         grid.innerHTML += `
-          <div class="p-2.5 rounded-xl border ${isCurrent ? 'bg-sky-500/10 border-sky-400 text-sky-300 font-bold ring-2 ring-sky-500/20' : 'bg-rr-navy/60 border-rr-border text-slate-400'}">
-            <div class="text-[10px] uppercase font-bold tracking-wider">${mesesNomes[i - 1]}</div>
-            <div class="text-base font-extrabold mt-0.5 ${count > 0 ? 'text-white' : 'text-slate-600'}">${count}</div>
+          <button type="button" onclick="selecionarMesCronograma(${i})" class="p-2.5 rounded-xl border transition-all flex flex-col items-center justify-center cursor-pointer ${activeClasses}">
+            <div class="text-[10px] uppercase font-bold tracking-wider">${nomesMesesCurto[i - 1]}</div>
+            <div class="text-base font-extrabold mt-0.5 ${count > 0 ? (isSelected ? 'text-sky-300' : 'text-white') : 'text-slate-600'}">${count}</div>
             <div class="text-[9px] text-slate-500">veículos</div>
-          </div>
+          </button>
         `;
       }
     }
 
+    function selecionarMesCronograma(mes) {
+      mesFiltroSelecionado = mes;
+      renderGridMeses();
+      renderDetalheMesSelecionado();
+    }
+
+    function renderDetalheMesSelecionado() {
+      const nomeMes = nomesMesesCompletos[mesFiltroSelecionado - 1];
+      const veiculosDoMes = veiculos.filter(v => Number(v.mes_licenc) === mesFiltroSelecionado);
+
+      document.getElementById('badge-mes-nome').innerText = `${nomeMes} (Mês ${mesFiltroSelecionado})`;
+      document.getElementById('badge-mes-contador').innerText = `${veiculosDoMes.length} veículo(s) com licenciamento neste mês`;
+
+      // Botão para ver na tabela geral de veículos com o filtro já pronto
+      const btnFiltrar = document.getElementById('btn-filtrar-veiculos-mes');
+      btnFiltrar.onclick = () => {
+        navigateTab('veiculos');
+        const inputFiltro = document.getElementById('filtro-veiculo');
+        inputFiltro.value = `Mês ${mesFiltroSelecionado}`;
+        renderVeiculos(mesFiltroSelecionado);
+      };
+
+      const tbody = document.getElementById('corpo-tabela-mes-selecionado');
+      tbody.innerHTML = '';
+
+      if (veiculosDoMes.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500 text-xs">Nenhum veículo registrado para vencer no mês de ${nomeMes}.</td></tr>`;
+        return;
+      }
+
+      veiculosDoMes.forEach(v => {
+        tbody.innerHTML += `
+          <tr class="hover:bg-rr-surface/60 transition">
+            <td class="p-2.5 font-mono text-slate-400">${v.cod || '-'}</td>
+            <td class="p-2.5 font-bold text-white">
+              ${v.nome}
+              <div class="text-[10px] text-slate-400 font-normal">${v.fabricante || ''} ${v.modelo || ''}</div>
+            </td>
+            <td class="p-2.5 font-mono">
+              <span class="px-2 py-0.5 rounded bg-rr-navy border border-rr-border text-white font-bold">${v.placa}</span>
+            </td>
+            <td class="p-2.5 font-mono text-slate-300">${v.renavam || '-'}</td>
+            <td class="p-2.5 text-slate-300">${v.titularidade || '-'}</td>
+            <td class="p-2.5">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${v.alugado_a ? 'bg-amber-500/10 text-amber-300 border border-amber-500/20' : 'bg-rr-navy text-slate-400'}">
+                ${v.alugado_a || 'Disponível / Pátio'}
+              </span>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    // FORMULÁRIOS
     async function salvarVeiculoForm(event) {
       event.preventDefault();
       const novo = {
@@ -722,7 +839,7 @@
 
       alert(`Veículo ${novo.nome} (${novo.placa}) salvo com sucesso!`);
       event.target.reset();
-      switchTab('veiculos');
+      navigateTab('veiculos');
       renderTudo();
     }
 
@@ -743,7 +860,7 @@
 
       alert(`Titular ${novo.nome} cadastrado com sucesso!`);
       event.target.reset();
-      switchTab('titulares');
+      navigateTab('titulares');
       renderTudo();
     }
 
@@ -765,21 +882,26 @@
 
       alert(`Cliente ${novo.nome} cadastrado com sucesso!`);
       event.target.reset();
-      switchTab('clientes');
+      navigateTab('clientes');
       renderTudo();
     }
 
-    function renderVeiculos() {
+    // TABELA DE VEÍCULOS
+    function renderVeiculos(mesFiltroDireto = null) {
       const q = (document.getElementById('filtro-veiculo').value || '').toLowerCase();
       const tbody = document.getElementById('corpo-veiculos');
       tbody.innerHTML = '';
 
-      const filtrados = veiculos.filter(v => 
-        (v.nome || '').toLowerCase().includes(q) ||
-        (v.placa || '').toLowerCase().includes(q) ||
-        (v.modelo || '').toLowerCase().includes(q) ||
-        (v.titularidade || '').toLowerCase().includes(q)
-      );
+      const filtrados = veiculos.filter(v => {
+        if (mesFiltroDireto) {
+          return Number(v.mes_licenc) === mesFiltroDireto;
+        }
+        return (v.nome || '').toLowerCase().includes(q) ||
+               (v.placa || '').toLowerCase().includes(q) ||
+               (v.modelo || '').toLowerCase().includes(q) ||
+               (v.titularidade || '').toLowerCase().includes(q) ||
+               (v.alugado_a || '').toLowerCase().includes(q);
+      });
 
       filtrados.forEach(v => {
         const isLic = Number(v.mes_licenc) === mesAtual;
@@ -955,11 +1077,16 @@
       tabs.forEach(t => {
         document.getElementById(`tab-${t}`).classList.add('hidden');
         const navBtn = document.getElementById(`nav-${t}`);
-        navBtn.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card";
+        if (navBtn) {
+          navBtn.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card";
+        }
       });
 
       document.getElementById(`tab-${tab}`).classList.remove('hidden');
-      document.getElementById(`nav-${tab}`).className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition bg-rr-blue text-white shadow-md shadow-blue-900/30";
+      const activeBtn = document.getElementById(`nav-${tab}`);
+      if (activeBtn) {
+        activeBtn.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition bg-rr-blue text-white shadow-md shadow-blue-900/30";
+      }
 
       const titulos = {
         dashboard: '<i class="fa-solid fa-bell text-sky-400"></i> Central de Notificações e Vencimentos',
@@ -977,13 +1104,13 @@
       const forms = ['veiculo', 'titular', 'cliente'];
       forms.forEach(f => {
         document.getElementById(`form-container-${f}`).classList.add('hidden');
-        document.getElementById(`btn-sub-${f}`).className = "px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-rr-card";
+        document.getElementById(`btn-sub-${f}`).className = "px-3.5 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-rr-card";
       });
       document.getElementById(`form-container-${formTipo}`).classList.remove('hidden');
-      document.getElementById(`btn-sub-${formTipo}`).className = "px-4 py-2 rounded-xl text-xs font-bold bg-rr-blue text-white shadow";
+      document.getElementById(`btn-sub-${formTipo}`).className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-rr-blue text-white shadow";
     }
 
-    // DISPARAR SINCRONIZAÇÃO EM SEGUNDO PLANO
+    // INICIALIZAR
     carregarDadosSupabase();
   </script>
 </body>
