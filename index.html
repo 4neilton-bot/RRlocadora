@@ -43,7 +43,7 @@
   <!-- BARRA LATERAL -->
   <aside class="w-68 bg-rr-surface border-r border-rr-border flex flex-col justify-between shrink-0 select-none">
     <div>
-      <!-- LOGO RR TRANSPORTES E LOCAÇÕES -->
+      <!-- LOGO RR -->
       <div class="p-4 border-b border-rr-border/80">
         <div class="logo-gradient-box rounded-xl p-3 border border-sky-300 shadow-md flex flex-col items-center justify-center">
           <div class="text-3xl font-black italic tracking-tighter text-[#0a1b5c] drop-shadow-sm font-sans" style="transform: skew(-6deg);">
@@ -57,15 +57,15 @@
         </div>
       </div>
 
-      <!-- STATUS DA NUVEM (SUPABASE) -->
+      <!-- STATUS DA NUVEM -->
       <div class="px-4 py-2 border-b border-rr-border/50 flex items-center justify-between text-[11px]">
         <span class="text-slate-400">Banco de Dados:</span>
         <span id="cloud-status-indicator" class="flex items-center gap-1.5 font-semibold text-amber-400">
-          <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Conectando...
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Verificando...
         </span>
       </div>
 
-      <!-- MENU DE NAVEGAÇÃO -->
+      <!-- NAVEGAÇÃO -->
       <nav class="p-3 space-y-1.5 text-xs font-semibold">
         <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition bg-rr-blue text-white shadow-md shadow-blue-900/30">
           <i class="fa-solid fa-triangle-exclamation w-4 text-sky-300"></i>
@@ -112,23 +112,38 @@
       </div>
       <div class="flex items-center gap-3 text-xs">
         <span id="current-date" class="text-slate-400"></span>
-        <button onclick="carregarTudoDaNuvem()" title="Sincronizar com Nuvem" class="p-1.5 rounded-lg bg-rr-card hover:bg-rr-border text-sky-300 border border-rr-border transition">
+        <button onclick="carregarTudoDaNuvem()" title="Sincronizar com Nuvem" class="p-1.5 rounded-lg bg-rr-card hover:bg-rr-border text-sky-300 border border-rr-border transition flex items-center gap-1.5 px-2.5">
           <i class="fa-solid fa-arrows-rotate"></i>
+          <span>Sincronizar</span>
         </button>
       </div>
     </header>
 
     <div class="p-6 space-y-6">
 
-      <!-- BANNER DE BOAS-VINDAS / BOOTSTRAP DE DADOS CASO O BANCO ESTEJA VAZIO -->
-      <div id="banner-bootstrap" class="hidden p-4 rounded-xl bg-blue-950/60 border border-sky-500/40 flex items-center justify-between">
-        <div>
-          <h4 class="text-sm font-bold text-sky-300">Banco de Dados Supabase Conectado!</h4>
-          <p class="text-xs text-slate-400">Suas tabelas estão conectadas. Se desejar carregar a base de dados inicial com todos os dados da planilha para o Supabase, clique ao lado.</p>
+      <!-- BANNER DE SINCRONIZAÇÃO INICIAL -->
+      <div id="banner-bootstrap" class="hidden p-4 rounded-xl bg-blue-950/80 border border-sky-500/50 flex flex-col md:flex-row items-center justify-between gap-3 shadow-lg">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold">
+            <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
+          </div>
+          <div>
+            <h4 class="text-sm font-bold text-sky-300">Banco de Dados Conectado! Deseja enviar os dados da planilha?</h4>
+            <p class="text-xs text-slate-300">As tabelas no Supabase foram detectadas vazias. Clique para gravar os veículos, titulares e clientes na nuvem.</p>
+          </div>
         </div>
-        <button onclick="carregarPlanilhaParaSupabase()" class="px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold transition">
-          Subir Dados Iniciais
+        <button onclick="carregarPlanilhaParaSupabase()" class="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold transition whitespace-nowrap shadow">
+          Gravar Dados no Supabase
         </button>
+      </div>
+
+      <!-- ALERTA DE TABELAS AUSENTES (SE NÃO RODOU O SCRIPT SQL) -->
+      <div id="banner-sql-warning" class="hidden p-4 rounded-xl bg-amber-950/70 border border-amber-500/50 flex items-start gap-3 text-xs text-amber-200">
+        <i class="fa-solid fa-triangle-exclamation text-base text-amber-400 mt-0.5"></i>
+        <div>
+          <p class="font-bold text-amber-300">Tabelas não encontradas no Supabase</p>
+          <p class="text-slate-300 mt-0.5">O app está funcionando com os dados locais normalmente. Para salvar na nuvem permanente, execute o script SQL no painel do Supabase (SQL Editor).</p>
+        </div>
       </div>
 
       <!-- ABA 1: DASHBOARD & ALERTAS -->
@@ -175,7 +190,6 @@
 
       <!-- ABA 2: CADASTROS (3 FORMULÁRIOS CONFORME PRINTS) -->
       <section id="tab-cadastros" class="hidden space-y-6 max-w-5xl mx-auto">
-        <!-- Sub-Navegação dos 3 Formulários -->
         <div class="flex items-center gap-2 border-b border-rr-border pb-3">
           <button onclick="setCadForm('veiculo')" id="btn-sub-veiculo" class="px-4 py-2 rounded-xl text-xs font-bold bg-rr-blue text-white shadow">
             <i class="fa-solid fa-truck-front mr-1.5"></i> 1. Cadastro de Veículo
@@ -194,7 +208,7 @@
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-car text-sky-400"></i> Ficha Cadastral do Veículo
             </h3>
-            <p class="text-xs text-slate-400">Colunas exatas da tabela de veículos da frota</p>
+            <p class="text-xs text-slate-400">Colunas oficiais da tabela de veículos</p>
           </div>
 
           <form onsubmit="salvarVeiculoNuvem(event)" class="space-y-4">
@@ -283,7 +297,7 @@
 
             <div class="flex justify-end gap-2 pt-3 border-t border-rr-border/60">
               <button type="submit" class="px-5 py-2 rounded-lg bg-rr-blue hover:bg-blue-600 text-white text-xs font-bold shadow flex items-center gap-2">
-                <i class="fa-solid fa-cloud-arrow-up"></i> Salvar Veículo no Supabase
+                <i class="fa-solid fa-cloud-arrow-up"></i> Salvar Veículo
               </button>
             </div>
           </form>
@@ -316,7 +330,7 @@
 
             <div class="flex justify-end gap-2 pt-3 border-t border-rr-border/60">
               <button type="submit" class="px-5 py-2 rounded-lg bg-rr-blue hover:bg-blue-600 text-white text-xs font-bold shadow flex items-center gap-2">
-                <i class="fa-solid fa-cloud-arrow-up"></i> Salvar Titular no Supabase
+                <i class="fa-solid fa-cloud-arrow-up"></i> Salvar Titular
               </button>
             </div>
           </form>
@@ -350,7 +364,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Responsável</label>
-                <input type="text" id="cad-c-resp" placeholder="Nome da pessoa de contato" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-sky-400 outline-none" />
+                <input type="text" id="cad-c-resp" placeholder="Nome do contato" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-sky-400 outline-none" />
               </div>
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Telefone</label>
@@ -360,7 +374,7 @@
 
             <div class="flex justify-end gap-2 pt-3 border-t border-rr-border/60">
               <button type="submit" class="px-5 py-2 rounded-lg bg-rr-blue hover:bg-blue-600 text-white text-xs font-bold shadow flex items-center gap-2">
-                <i class="fa-solid fa-cloud-arrow-up"></i> Salvar Cliente no Supabase
+                <i class="fa-solid fa-cloud-arrow-up"></i> Salvar Cliente
               </button>
             </div>
           </form>
@@ -501,15 +515,8 @@
   </main>
 
   <script>
-    // ----------------------------------------------------
-    // CONFIGURAÇÃO OFICIAL DO SUPABASE COM SUAS CREDENCIAIS
-    // ----------------------------------------------------
-    const SUPABASE_URL = "https://kflqnwiwkpxrebwrsavg.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_yo9lCkKKQMum2ki7piDlMQ_rBXJY0nT";
-    const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
-
-    // BASE DE APOIO DA PLANILHA (SEED INICIAL)
-    const initialVehicles = [
+    // DADOS INICIAIS DA PLANILHA (BASE RESILIENTE)
+    const baseVeiculos = [
       { cod: 1, nome: "PIPA VERMELHO", fabricante: "Mercedes", modelo: "1418", ano_fab_mod: "1995", estado: "BA", titularidade: "ANA LUIZA", renavam: "268412258", placa: "GTQ9A58", mes_licenc: 10, cod_seguranca: "45835165555", alugado_a: null, seguradora: "FCK", valor_seguro: 200 },
       { cod: 2, nome: "MOBI VENDIDO", fabricante: "Fiat", modelo: "MOBI 1", ano_fab_mod: "2018", estado: "BA", titularidade: "VINICIUS", renavam: "1121073090", placa: "PKM6651", mes_licenc: 7, cod_seguranca: "51516434054", alugado_a: "PREFEITURA DE RIO REAL", seguradora: "Protege", valor_seguro: 230 },
       { cod: 3, nome: "VOYAGE", fabricante: "VW", modelo: "VOYAGE BRANCO", ano_fab_mod: "2020", estado: "BA", titularidade: "JOSE ROQUE", renavam: "1112864420", placa: "QKZ2E42", mes_licenc: 7, cod_seguranca: "1112864420", alugado_a: "PREFEITURA DE RIO REAL", seguradora: "Protege", valor_seguro: 230 },
@@ -525,7 +532,7 @@
       { cod: 13, nome: "CACAMBA BRANCA 24X280", fabricante: "VW", modelo: "24X280 BRANCA 2012", ano_fab_mod: "2012", estado: "BA", titularidade: "ALS ROCHA TRANSPORTES", renavam: "531947092", placa: "OLE2A96", mes_licenc: 9, cod_seguranca: "41659608176", alugado_a: "DM MIRANGABA", seguradora: "Protege", valor_seguro: 230 }
     ];
 
-    const initialTitulares = [
+    const baseTitulares = [
       { id: 1, nome: "ANA LUIZA", cpf_cnpj: "", telefone: "" },
       { id: 2, nome: "VINICIUS", cpf_cnpj: "", telefone: "" },
       { id: 3, nome: "JOSE ROQUE", cpf_cnpj: "", telefone: "" },
@@ -536,7 +543,7 @@
       { id: 8, nome: "LEDPUBLICIDADE", cpf_cnpj: "", telefone: "" }
     ];
 
-    const initialClientes = [
+    const baseClientes = [
       { id: 1, nome: "PREFEITURA DE RIO REAL", cpf_cnpj: "", responsavel: "Secretaria de Obras", telefone: "" },
       { id: 2, nome: "PREFEITURA DE INHAMBUPE", cpf_cnpj: "", responsavel: "Transportes", telefone: "" },
       { id: 3, nome: "PREFEITURA DE ITAPICURU", cpf_cnpj: "", responsavel: "Administração", telefone: "" },
@@ -546,77 +553,117 @@
       { id: 7, nome: "DM MIRANGABA", cpf_cnpj: "", responsavel: "Diretoria", telefone: "" }
     ];
 
-    const initialMaintenance = [
+    const baseManutencoes = [
       { id: 1, veiculo: "PIPA VERMELHO", placa: "GTQ9A58", tipo: "Troca de Óleo e Filtros", oficina: "Auto Peças Nordeste", custo: 850, data: "2026-08-10", proxima: "10.000 km", status: "Concluída" },
       { id: 2, veiculo: "FORD CARGO 816", placa: "OIJ9E69", tipo: "Pastilhas e Freio a Ar", oficina: "Freios & CIA", custo: 1200, data: "2026-09-02", proxima: "2027-03-01", status: "Concluída" },
       { id: 3, veiculo: "KWID PRATA", placa: "RDC8B45", tipo: "Revisão 40.000 KM", oficina: "Concessionária", custo: 680, data: "2026-09-15", proxima: "50.000 km", status: "Agendada" }
     ];
 
-    // ESTADO LOCAL
-    let veiculos = JSON.parse(localStorage.getItem('frota_veiculos')) || initialVehicles;
-    let titulares = JSON.parse(localStorage.getItem('frota_titulares')) || initialTitulares;
-    let clientes = JSON.parse(localStorage.getItem('frota_clientes')) || initialClientes;
-    let manutencoes = JSON.parse(localStorage.getItem('frota_manutencoes')) || initialMaintenance;
+    let veiculos = JSON.parse(localStorage.getItem('frota_veiculos')) || baseVeiculos;
+    let titulares = JSON.parse(localStorage.getItem('frota_titulares')) || baseTitulares;
+    let clientes = JSON.parse(localStorage.getItem('frota_clientes')) || baseClientes;
+    let manutencoes = JSON.parse(localStorage.getItem('frota_manutencoes')) || baseManutencoes;
 
     const hoje = new Date();
     const mesAtual = hoje.getMonth() + 1;
     document.getElementById('current-date').innerText = hoje.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
 
-    // CARREGAR DADOS DO SUPABASE
+    // CARREGAR DADOS NA TELA IMEDIATAMENTE (NUNCA DEIXAR TELA VAZIA)
+    renderTudo();
+
+    // INICIALIZAÇÃO DO SUPABASE
+    const SUPABASE_URL = "https://kflqnwiwkpxrebwrsavg.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_yo9lCkKKQMum2ki7piDlMQ_rBXJY0nT";
+    let supabase = null;
+
+    if (window.supabase) {
+      try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      } catch (e) {
+        console.warn("Erro ao instanciar Supabase:", e);
+      }
+    }
+
+    // SINCRONIZAÇÃO RESILIENTE COM SUPABASE
     async function carregarTudoDaNuvem() {
       const statusEl = document.getElementById('cloud-status-indicator');
-      statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Sincronizando...`;
+      statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Verificando...`;
 
       if (!supabase) {
-        statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> Offline (Local)`;
-        renderTudo();
+        statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> Modo Local (Offline)`;
         return;
       }
 
+      // Função com timeout de 4 segundos para nunca travar
+      const withTimeout = (promise, ms = 4000) => {
+        return Promise.race([
+          promise,
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
+        ]);
+      };
+
       try {
-        // 1. Veículos
-        const { data: vData, error: vErr } = await supabase.from('veiculos').select('*').order('cod', { ascending: true });
-        if (!vErr && vData && vData.length > 0) {
-          veiculos = vData;
-          localStorage.setItem('frota_veiculos', JSON.stringify(veiculos));
-        } else if (!vErr && vData && vData.length === 0) {
-          document.getElementById('banner-bootstrap').classList.remove('hidden');
+        const { data: vData, error: vErr } = await withTimeout(supabase.from('veiculos').select('*').order('cod', { ascending: true }));
+
+        if (vErr) {
+          console.warn("Aviso Supabase:", vErr);
+          // Se o erro indicar que a tabela não existe
+          if (vErr.code === '42P01' || (vErr.message && vErr.message.includes('relation'))) {
+            document.getElementById('banner-sql-warning').classList.remove('hidden');
+            statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span> Criar Tabelas SQL`;
+          } else {
+            statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-400"></span> Erro de Acesso`;
+          }
+          return;
         }
 
-        // 2. Titulares
-        const { data: tData, error: tErr } = await supabase.from('titulares').select('*').order('nome', { ascending: true });
-        if (!tErr && tData && tData.length > 0) {
+        document.getElementById('banner-sql-warning').classList.add('hidden');
+
+        if (vData && vData.length > 0) {
+          veiculos = vData;
+          localStorage.setItem('frota_veiculos', JSON.stringify(veiculos));
+          statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Supabase Conectado`;
+        } else {
+          // Tabelas existem, mas estão vazias
+          document.getElementById('banner-bootstrap').classList.remove('hidden');
+          statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Conectado (Vazio)`;
+        }
+
+        // Buscar titulares
+        const { data: tData } = await withTimeout(supabase.from('titulares').select('*').order('nome', { ascending: true }));
+        if (tData && tData.length > 0) {
           titulares = tData;
           localStorage.setItem('frota_titulares', JSON.stringify(titulares));
         }
 
-        // 3. Clientes
-        const { data: cData, error: cErr } = await supabase.from('clientes').select('*').order('id', { ascending: true });
-        if (!cErr && cData && cData.length > 0) {
+        // Buscar clientes
+        const { data: cData } = await withTimeout(supabase.from('clientes').select('*').order('id', { ascending: true }));
+        if (cData && cData.length > 0) {
           clientes = cData;
           localStorage.setItem('frota_clientes', JSON.stringify(clientes));
         }
 
-        // 4. Manutenções
-        const { data: mData, error: mErr } = await supabase.from('manutencoes').select('*').order('id', { ascending: false });
-        if (!mErr && mData && mData.length > 0) {
+        // Buscar manutenções
+        const { data: mData } = await withTimeout(supabase.from('manutencoes').select('*').order('id', { ascending: false }));
+        if (mData && mData.length > 0) {
           manutencoes = mData;
           localStorage.setItem('frota_manutencoes', JSON.stringify(manutencoes));
         }
 
-        statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Supabase Conectado`;
-      } catch (e) {
-        console.error("Erro na conexão com Supabase:", e);
-        statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-400"></span> Erro de Conexão`;
+      } catch (err) {
+        console.warn("Supabase timeout ou indisponível:", err);
+        statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> Modo Local (Offline)`;
       }
 
       renderTudo();
     }
 
-    // CARREGAR SEED INICIAL NO SUPABASE (SE ESTIVER VAZIO)
+    // GRAVAR PLANILHA NO SUPABASE
     async function carregarPlanilhaParaSupabase() {
       if (!supabase) return;
-      if (!confirm("Deseja gravar a lista inicial de veículos, titulares e clientes no seu Supabase?")) return;
+      const btn = event.target;
+      btn.innerText = "Gravando...";
+      btn.disabled = true;
 
       try {
         await supabase.from('titulares').insert(titulares.map(t => ({ nome: t.nome, cpf_cnpj: t.cpf_cnpj || null, telefone: t.telefone || null })));
@@ -632,14 +679,16 @@
         })));
 
         document.getElementById('banner-bootstrap').classList.add('hidden');
-        alert("Dados iniciais carregados no Supabase com sucesso!");
+        alert("Todos os dados foram gravados na nuvem com sucesso!");
         carregarTudoDaNuvem();
       } catch (err) {
-        alert("Erro ao gravar dados iniciais: " + err.message);
+        alert("Erro ao gravar dados: " + err.message);
+        btn.innerText = "Gravar Dados no Supabase";
+        btn.disabled = false;
       }
     }
 
-    // RENDERIZAÇÃO GERAL
+    // RENDERIZAR TUDO NA INTERFACE
     function renderTudo() {
       atualizarDatalists();
       renderDashboard();
@@ -668,7 +717,6 @@
       });
     }
 
-    // DASHBOARD E ALERTAS
     function renderDashboard() {
       const total = veiculos.length;
       const alugados = veiculos.filter(v => v.alugado_a && v.alugado_a.trim() !== '' && v.alugado_a !== 'USO PESSOAL').length;
@@ -684,7 +732,6 @@
       lista.innerHTML = '';
       let alertasCount = 0;
 
-      // Licenciamentos do Mês
       vencendoEsteMes.forEach(v => {
         alertasCount++;
         lista.innerHTML += `
@@ -701,7 +748,6 @@
         `;
       });
 
-      // Licenciamentos Próximo Mês
       const proxMes = mesAtual === 12 ? 1 : mesAtual + 1;
       const vencendoProx = veiculos.filter(v => Number(v.mes_licenc) === proxMes);
       vencendoProx.forEach(v => {
@@ -720,7 +766,6 @@
         `;
       });
 
-      // Manutenções Agendadas
       const agendadas = manutencoes.filter(m => m.status === 'Agendada');
       agendadas.forEach(m => {
         alertasCount++;
@@ -742,7 +787,6 @@
         lista.innerHTML = `<div class="p-4 text-center text-slate-500 text-xs">Nenhum alerta imediato no momento. Toda a documentação e manutenções em dia.</div>`;
       }
 
-      // Cronograma Anual
       const grid = document.getElementById('grid-meses');
       const mesesNomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
       grid.innerHTML = '';
@@ -759,7 +803,6 @@
       }
     }
 
-    // SALVAR VEÍCULO NA NUVEM
     async function salvarVeiculoNuvem(event) {
       event.preventDefault();
       const novo = {
@@ -779,10 +822,10 @@
       };
 
       if (supabase) {
-        const { data, error } = await supabase.from('veiculos').insert([novo]).select();
-        if (error) {
-          alert('Erro ao salvar no Supabase: ' + error.message);
-          return;
+        try {
+          await supabase.from('veiculos').insert([novo]);
+        } catch (e) {
+          console.warn("Erro ao salvar veículo no Supabase:", e);
         }
       }
 
@@ -790,13 +833,12 @@
       veiculos.unshift(novo);
       localStorage.setItem('frota_veiculos', JSON.stringify(veiculos));
 
-      alert(`Veículo ${novo.nome} (${novo.placa}) salvo com sucesso na nuvem!`);
+      alert(`Veículo ${novo.nome} (${novo.placa}) salvo com sucesso!`);
       event.target.reset();
       switchTab('veiculos');
       carregarTudoDaNuvem();
     }
 
-    // SALVAR TITULAR NA NUVEM
     async function salvarTitularNuvem(event) {
       event.preventDefault();
       const novo = {
@@ -806,10 +848,10 @@
       };
 
       if (supabase) {
-        const { data, error } = await supabase.from('titulares').insert([novo]).select();
-        if (error) {
-          alert('Erro ao salvar titular no Supabase: ' + error.message);
-          return;
+        try {
+          await supabase.from('titulares').insert([novo]);
+        } catch (e) {
+          console.warn("Erro ao salvar titular no Supabase:", e);
         }
       }
 
@@ -823,7 +865,6 @@
       carregarTudoDaNuvem();
     }
 
-    // SALVAR CLIENTE NA NUVEM
     async function salvarClienteNuvem(event) {
       event.preventDefault();
       const novo = {
@@ -834,10 +875,10 @@
       };
 
       if (supabase) {
-        const { data, error } = await supabase.from('clientes').insert([novo]).select();
-        if (error) {
-          alert('Erro ao salvar cliente no Supabase: ' + error.message);
-          return;
+        try {
+          await supabase.from('clientes').insert([novo]);
+        } catch (e) {
+          console.warn("Erro ao salvar cliente no Supabase:", e);
         }
       }
 
@@ -851,7 +892,6 @@
       carregarTudoDaNuvem();
     }
 
-    // RENDERIZAR TABELA DE VEÍCULOS
     function renderVeiculos() {
       const q = (document.getElementById('filtro-veiculo').value || '').toLowerCase();
       const tbody = document.getElementById('corpo-veiculos');
@@ -899,14 +939,13 @@
     async function removerVeiculo(cod, placa) {
       if (!confirm(`Deseja excluir o veículo ${placa}?`)) return;
       if (supabase) {
-        await supabase.from('veiculos').delete().eq('placa', placa);
+        try { await supabase.from('veiculos').delete().eq('placa', placa); } catch (e) {}
       }
       veiculos = veiculos.filter(v => v.placa !== placa);
       localStorage.setItem('frota_veiculos', JSON.stringify(veiculos));
       carregarTudoDaNuvem();
     }
 
-    // RENDERIZAR TABELA DE TITULARES
     function renderTitulares() {
       const tbody = document.getElementById('corpo-titulares');
       tbody.innerHTML = '';
@@ -926,13 +965,14 @@
 
     async function removerTitular(nome) {
       if (!confirm(`Remover titular ${nome}?`)) return;
-      if (supabase) await supabase.from('titulares').delete().eq('nome', nome);
+      if (supabase) {
+        try { await supabase.from('titulares').delete().eq('nome', nome); } catch (e) {}
+      }
       titulares = titulares.filter(t => t.nome !== nome);
       localStorage.setItem('frota_titulares', JSON.stringify(titulares));
       carregarTudoDaNuvem();
     }
 
-    // RENDERIZAR TABELA DE CLIENTES
     function renderClientes() {
       const tbody = document.getElementById('corpo-clientes');
       tbody.innerHTML = '';
@@ -954,13 +994,14 @@
 
     async function removerCliente(nome) {
       if (!confirm(`Remover cliente ${nome}?`)) return;
-      if (supabase) await supabase.from('clientes').delete().eq('nome', nome);
+      if (supabase) {
+        try { await supabase.from('clientes').delete().eq('nome', nome); } catch (e) {}
+      }
       clientes = clientes.filter(c => c.nome !== nome);
       localStorage.setItem('frota_clientes', JSON.stringify(clientes));
       carregarTudoDaNuvem();
     }
 
-    // RENDERIZAR TABELA DE SEGUROS
     function renderSeguros() {
       const tbody = document.getElementById('corpo-seguros');
       tbody.innerHTML = '';
@@ -983,7 +1024,6 @@
       document.getElementById('total-custo-seguro-tab').innerText = `R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
     }
 
-    // RENDERIZAR TABELA DE MANUTENÇÕES
     function renderManutencoes() {
       const tbody = document.getElementById('corpo-manutencoes');
       tbody.innerHTML = '';
@@ -1029,7 +1069,7 @@
       };
 
       if (supabase) {
-        await supabase.from('manutencoes').insert([nova]);
+        try { await supabase.from('manutencoes').insert([nova]); } catch (e) {}
       }
 
       manutencoes.unshift(nova);
@@ -1037,7 +1077,6 @@
       carregarTudoDaNuvem();
     }
 
-    // NAVEGAÇÃO DE ABAS
     function switchTab(tab) {
       const tabs = ['dashboard', 'cadastros', 'veiculos', 'titulares', 'clientes', 'seguros', 'manutencoes'];
       tabs.forEach(t => {
@@ -1071,7 +1110,7 @@
       document.getElementById(`btn-sub-${formTipo}`).className = "px-4 py-2 rounded-xl text-xs font-bold bg-rr-blue text-white shadow";
     }
 
-    // INICIALIZAR
+    // DISPARAR SINCRONIZAÇÃO EM SEGUNDO PLANO
     carregarTudoDaNuvem();
   </script>
 </body>
