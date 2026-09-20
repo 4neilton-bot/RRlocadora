@@ -2,7 +2,10 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#071A1C" />
   <title>RR Transportes e Locações - Gestão de Frotas</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -11,15 +14,40 @@
       darkMode: 'class',
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif']
+          },
           colors: {
             rr: {
-              royal: '#0d226b',
-              navy: '#060b18',
-              surface: '#0b1329',
-              card: '#0f1b38',
-              border: '#1c2d5a',
-              sky: '#38bdf8',
-              blue: '#1d4ed8'
+              navy: '#071A1C',
+              surface: '#0B2224',
+              card: '#0F2C2F',
+              border: '#3D2F29',
+              sky: '#00F2F2',
+              blue: '#0075F2',
+              blush: '#FFEAEE'
+            },
+            slate: {
+              100: '#F3EDEA',
+              300: '#C9B6AE',
+              400: '#A99189',
+              500: '#8A756D',
+              600: '#6B5951',
+              950: '#050D0E'
+            },
+            sky: {
+              300: '#7FFAFA',
+              400: '#00F2F2',
+              500: '#00D9D9'
+            },
+            blue: {
+              600: '#0064D6',
+              900: '#0A2A5C'
+            },
+            amber: {
+              300: '#F3C177',
+              400: '#E8A94A',
+              500: '#E8A94A'
             }
           }
         }
@@ -27,12 +55,186 @@
     }
   </script>
   <style>
+    :root {
+      --rr-navy: #071A1C;
+      --rr-surface: #0B2224;
+      --rr-card: #0F2C2F;
+      --rr-border: #3D2F29;
+      --rr-primary: #0075F2;
+      --rr-accent: #00F2F2;
+      --rr-blush: #FFEAEE;
+    }
+
+    html, body {
+      overscroll-behavior-y: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--rr-navy);
+    }
+
+    main, #sidebar {
+      overscroll-behavior-y: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    ::selection {
+      background: var(--rr-primary);
+      color: #ffffff;
+    }
+
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--rr-navy);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--rr-border);
+      border-radius: 999px;
+      border: 2px solid var(--rr-navy);
+    }
+    * {
+      scrollbar-color: var(--rr-border) var(--rr-navy);
+      scrollbar-width: thin;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--rr-accent);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+
     .logo-gradient-box {
-      background: linear-gradient(180deg, #38bdf8 0%, #60a5fa 40%, #bfdbfe 75%, #ffffff 100%);
+      background: linear-gradient(180deg, #00F2F2 0%, #38bdf8 40%, #bfe9ff 75%, #ffffff 100%);
     }
     .metallic-badge {
       background: linear-gradient(180deg, #f8fafc 0%, #cbd5e1 50%, #94a3b8 100%);
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* SAFE AREA */
+    .rr-safe-top {
+      padding-top: max(0.75rem, env(safe-area-inset-top));
+    }
+    .rr-safe-bottom {
+      padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+    #sidebar {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* ELEVATED SURFACE SYSTEM */
+    .rr-card {
+      background: var(--rr-card);
+      border: 1px solid var(--rr-border);
+      border-radius: 1.25rem;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.03) inset,
+        0 1px 2px rgba(0,0,0,0.35),
+        0 12px 28px -12px rgba(0,0,0,0.55);
+    }
+
+    .rr-tap-target {
+      min-width: 44px;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* SELECTED MONTH — restrained blush glow under the accent ring */
+    .rr-selected-glow {
+      box-shadow: 0 0 0 2px rgba(0,242,242,0.45), 0 8px 22px -6px rgba(255,234,238,0.18);
+    }
+
+    /* SKELETON LOADING */
+    .rr-skeleton {
+      color: transparent !important;
+      background: linear-gradient(90deg, var(--rr-border) 25%, rgba(255,255,255,0.08) 50%, var(--rr-border) 75%);
+      background-size: 200% 100%;
+      border-radius: 0.375rem;
+      display: inline-block;
+      min-width: 2.5rem;
+      animation: rr-shimmer 1.4s ease-in-out infinite;
+    }
+    @keyframes rr-shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* TOASTS */
+    #toast-container {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: max(1rem, env(safe-area-inset-bottom));
+      z-index: 60;
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      gap: 0.5rem;
+      pointer-events: none;
+      padding: 0 1rem;
+    }
+    .rr-toast {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      max-width: 420px;
+      width: 100%;
+      background: var(--rr-card);
+      border: 1px solid var(--rr-border);
+      border-radius: 1rem;
+      padding: 0.75rem 1rem;
+      box-shadow: 0 12px 28px -8px rgba(0,0,0,0.6);
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+      transition: opacity .22s ease-out, transform .22s ease-out;
+    }
+    .rr-toast-show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .rr-toast-success i { color: #34D399; }
+    .rr-toast-error i { color: #fb7185; }
+    .rr-toast span {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #F3EDEA;
+    }
+
+    /* DIALOGS */
+    dialog.rr-dialog {
+      background: transparent;
+      border: none;
+      padding: 0;
+      max-width: min(440px, calc(100vw - 2rem));
+      width: 100%;
+      margin: auto;
+    }
+    dialog.rr-dialog::backdrop {
+      background: rgba(3, 10, 11, 0.72);
+      backdrop-filter: blur(6px);
+    }
+    dialog.rr-dialog[open] {
+      animation: rr-dialog-in 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes rr-dialog-in {
+      from { opacity: 0; transform: translateY(10px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .rr-dialog-panel {
+      background: var(--rr-card);
+      border: 1px solid var(--rr-border);
+      border-radius: 1.25rem;
+      box-shadow: 0 24px 48px -12px rgba(0,0,0,0.65);
+      max-height: min(85vh, 640px);
+      overflow-y: auto;
+      padding-bottom: env(safe-area-inset-bottom);
     }
   </style>
 </head>
@@ -45,7 +247,7 @@
   <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-40 w-72 md:w-68 bg-rr-surface border-r border-rr-border flex flex-col justify-between shrink-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out select-none shadow-2xl md:shadow-none">
     <div>
       <!-- LOGO RR + BOTÃO FECHAR NO MOBILE -->
-      <div class="p-4 border-b border-rr-border/80 flex items-center justify-between">
+      <div class="p-4 rr-safe-top border-b border-rr-border/80 flex items-center justify-between">
         <div class="logo-gradient-box rounded-xl p-2.5 border border-sky-300 shadow-md flex flex-col items-center justify-center flex-1">
           <div class="text-2xl md:text-3xl font-black italic tracking-tighter text-[#0a1b5c] drop-shadow-sm font-sans" style="transform: skew(-6deg);">
             RR
@@ -56,7 +258,7 @@
             <span class="w-1 h-1 rounded-full bg-slate-500"></span>
           </div>
         </div>
-        <button onclick="toggleSidebar(false)" class="md:hidden ml-3 p-2 text-slate-400 hover:text-white text-lg">
+        <button onclick="toggleSidebar(false)" aria-label="Fechar menu" class="rr-tap-target md:hidden ml-2 text-slate-400 hover:text-white text-lg rounded-xl hover:bg-rr-card transition">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -71,38 +273,38 @@
 
       <!-- NAVEGAÇÃO -->
       <nav class="p-3 space-y-1 text-xs font-semibold">
-        <button onclick="navigateTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition bg-rr-blue text-white shadow-md shadow-blue-900/30">
+        <button onclick="navigateTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl transition bg-rr-blue text-white shadow-md shadow-blue-900/30">
           <i class="fa-solid fa-triangle-exclamation w-4 text-sky-300"></i>
           <span>Alertas & Prazos</span>
         </button>
-        <button onclick="navigateTab('cadastros')" id="nav-cadastros" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
+        <button onclick="navigateTab('cadastros')" id="nav-cadastros" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
           <i class="fa-solid fa-square-plus w-4 text-sky-400"></i>
           <span>Cadastros (3 em 1)</span>
         </button>
-        <button onclick="navigateTab('veiculos')" id="nav-veiculos" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
+        <button onclick="navigateTab('veiculos')" id="nav-veiculos" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
           <i class="fa-solid fa-truck-moving w-4 text-sky-400"></i>
           <span>Veículos da Frota</span>
         </button>
-        <button onclick="navigateTab('titulares')" id="nav-titulares" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
+        <button onclick="navigateTab('titulares')" id="nav-titulares" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
           <i class="fa-solid fa-id-card-clip w-4 text-sky-400"></i>
           <span>Titulares (PF/PJ)</span>
         </button>
-        <button onclick="navigateTab('clientes')" id="nav-clientes" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
+        <button onclick="navigateTab('clientes')" id="nav-clientes" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
           <i class="fa-solid fa-building-user w-4 text-sky-400"></i>
           <span>Clientes / Alocação</span>
         </button>
-        <button onclick="navigateTab('seguros')" id="nav-seguros" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
+        <button onclick="navigateTab('seguros')" id="nav-seguros" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
           <i class="fa-solid fa-shield-halved w-4 text-sky-400"></i>
           <span>Seguros & Rastreio</span>
         </button>
-        <button onclick="navigateTab('manutencoes')" id="nav-manutencoes" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
+        <button onclick="navigateTab('manutencoes')" id="nav-manutencoes" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card">
           <i class="fa-solid fa-screwdriver-wrench w-4 text-sky-400"></i>
           <span>Manutenções</span>
         </button>
       </nav>
     </div>
 
-    <div class="p-3 border-t border-rr-border text-[10px] text-slate-400 text-center">
+    <div class="p-3 rr-safe-bottom border-t border-rr-border text-[10px] text-slate-400 text-center">
       RR Transportes • Cloud Powered
     </div>
   </aside>
@@ -110,10 +312,10 @@
   <!-- ÁREA PRINCIPAL -->
   <main class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
     <!-- Header Superior com Botão Hambúrguer Mobile -->
-    <header class="h-14 bg-rr-surface/90 backdrop-blur-md border-b border-rr-border px-4 md:px-6 flex items-center justify-between sticky top-0 z-20 shrink-0">
+    <header class="min-h-14 rr-safe-top bg-rr-surface/90 backdrop-blur-md border-b border-rr-border px-4 md:px-6 pb-3 md:pb-0 flex items-center justify-between sticky top-0 z-20 shrink-0">
       <div class="flex items-center gap-3 min-w-0">
         <!-- BOTÃO DE ABRIR MENU (SÓ VISÍVEL EM CELULAR) -->
-        <button onclick="toggleSidebar(true)" class="md:hidden p-2 text-slate-300 hover:text-white bg-rr-card border border-rr-border rounded-lg text-sm">
+        <button onclick="toggleSidebar(true)" aria-label="Abrir menu" class="rr-tap-target md:hidden text-slate-300 hover:text-white bg-rr-card border border-rr-border rounded-xl text-sm">
           <i class="fa-solid fa-bars"></i>
         </button>
         <div id="section-title" class="text-xs md:text-sm font-bold text-white tracking-wide truncate flex items-center gap-2">
@@ -122,7 +324,7 @@
       </div>
       <div class="flex items-center gap-2 md:gap-3 text-xs shrink-0">
         <span id="current-date" class="hidden sm:inline text-slate-400 text-[11px]"></span>
-        <button onclick="carregarDadosSupabase()" title="Atualizar dados da Nuvem" class="px-2.5 py-1.5 rounded-lg bg-rr-card hover:bg-rr-border text-sky-300 border border-rr-border transition flex items-center gap-1.5 font-semibold text-xs">
+        <button onclick="carregarDadosSupabase()" title="Atualizar dados da Nuvem" class="rr-tap-target px-3 rounded-xl bg-rr-card hover:bg-rr-border/60 active:scale-95 text-sky-300 border border-rr-border transition flex items-center gap-1.5 font-semibold text-xs">
           <i class="fa-solid fa-arrows-rotate"></i>
           <span class="hidden sm:inline">Atualizar</span>
         </button>
@@ -135,30 +337,30 @@
       <section id="tab-dashboard" class="space-y-6">
         <!-- Indicadores Rápidos -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-          <div class="bg-rr-card border border-rr-border rounded-xl p-3.5 md:p-4">
+          <div class="rr-card p-3.5 md:p-4">
             <div class="text-slate-400 text-[10px] md:text-[11px] font-bold uppercase">Total da Frota</div>
-            <div class="text-xl md:text-2xl font-black text-white mt-1" id="stat-total-frota">0</div>
+            <div class="text-xl md:text-2xl font-black text-white mt-1 rr-skeleton" id="stat-total-frota">0</div>
             <div class="text-[10px] md:text-[11px] text-slate-400 mt-0.5">Veículos registrados</div>
           </div>
-          <div class="bg-rr-card border border-rr-border rounded-xl p-3.5 md:p-4">
+          <div class="rr-card p-3.5 md:p-4">
             <div class="text-slate-400 text-[10px] md:text-[11px] font-bold uppercase">Alugados / Alocados</div>
-            <div class="text-xl md:text-2xl font-black text-amber-400 mt-1" id="stat-alugados">0</div>
+            <div class="text-xl md:text-2xl font-black text-amber-400 mt-1 rr-skeleton" id="stat-alugados">0</div>
             <div class="text-[10px] md:text-[11px] text-slate-400 mt-0.5">Em operação</div>
           </div>
-          <div class="bg-rr-card border border-rr-border rounded-xl p-3.5 md:p-4">
+          <div class="rr-card p-3.5 md:p-4">
             <div class="text-slate-400 text-[10px] md:text-[11px] font-bold uppercase">Licenciamento (Mês)</div>
-            <div class="text-xl md:text-2xl font-black text-rose-400 mt-1" id="stat-licenc-mes">0</div>
+            <div class="text-xl md:text-2xl font-black text-rose-400 mt-1 rr-skeleton" id="stat-licenc-mes">0</div>
             <div class="text-[10px] md:text-[11px] text-slate-400 mt-0.5">Vencendo agora</div>
           </div>
-          <div class="bg-rr-card border border-rr-border rounded-xl p-3.5 md:p-4">
+          <div class="rr-card p-3.5 md:p-4">
             <div class="text-slate-400 text-[10px] md:text-[11px] font-bold uppercase">Custo Seguro / Mês</div>
-            <div class="text-xl md:text-2xl font-black text-emerald-400 mt-1" id="stat-custo-seguro">R$ 0</div>
+            <div class="text-xl md:text-2xl font-black text-emerald-400 mt-1 rr-skeleton" id="stat-custo-seguro">R$ 0</div>
             <div class="text-[10px] md:text-[11px] text-slate-400 mt-0.5">Apólices ativas</div>
           </div>
         </div>
 
         <!-- Alertas Imediatos -->
-        <div class="bg-rr-card border border-rr-border rounded-xl p-4 md:p-5">
+        <div class="rr-card p-4 md:p-5">
           <div class="flex items-center justify-between mb-3.5 border-b border-rr-border/60 pb-3">
             <div class="flex items-center gap-2">
               <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
@@ -166,11 +368,14 @@
             </div>
             <span class="text-[10px] md:text-[11px] text-slate-400">Verificação automática</span>
           </div>
-          <div id="lista-alertas" class="space-y-2.5"></div>
+          <div id="lista-alertas" class="space-y-2.5">
+            <div class="h-14 rounded-xl rr-skeleton"></div>
+            <div class="h-14 rounded-xl rr-skeleton"></div>
+          </div>
         </div>
 
         <!-- CRONOGRAMA ANUAL CLICÁVEL (INTERATIVO) -->
-        <div class="bg-rr-card border border-rr-border rounded-xl p-4 md:p-5">
+        <div class="rr-card p-4 md:p-5">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3">
             <div>
               <h3 class="text-xs font-bold text-sky-400 uppercase tracking-wider">Cronograma Anual de Licenciamento (IPVA)</h3>
@@ -186,17 +391,17 @@
           <div id="detalhe-mes-selecionado" class="mt-4 pt-4 border-t border-rr-border/80">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
               <div class="flex items-center gap-2">
-                <span class="px-2.5 py-1 rounded bg-sky-500/20 text-sky-300 font-bold text-xs" id="badge-mes-nome">Mês Selecionado</span>
+                <span class="px-2.5 py-1 rounded-lg bg-sky-500/20 text-sky-300 font-bold text-xs" id="badge-mes-nome">Mês Selecionado</span>
                 <span class="text-xs text-slate-300" id="badge-mes-contador">0 veículos encontrados</span>
               </div>
-              <button id="btn-filtrar-veiculos-mes" class="px-3 py-1 bg-rr-navy border border-rr-border hover:border-sky-400 text-sky-300 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+              <button id="btn-filtrar-veiculos-mes" class="px-3 py-2 bg-rr-navy border border-rr-border hover:border-sky-400 text-sky-300 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition">
                 <span>Abrir na aba de Veículos</span>
                 <i class="fa-solid fa-arrow-right text-[10px]"></i>
               </button>
             </div>
 
             <!-- Tabela dos Veículos do Mês Selecionado -->
-            <div class="overflow-x-auto rounded-lg border border-rr-border">
+            <div class="overflow-x-auto rounded-xl border border-rr-border">
               <table class="w-full text-left text-xs">
                 <thead class="bg-rr-surface text-slate-300 font-semibold uppercase text-[10px]">
                   <tr>
@@ -218,19 +423,19 @@
       <!-- ABA 2: CADASTROS (3 FORMULÁRIOS) -->
       <section id="tab-cadastros" class="hidden space-y-6 max-w-5xl mx-auto">
         <div class="flex flex-wrap items-center gap-2 border-b border-rr-border pb-3">
-          <button onclick="setCadForm('veiculo')" id="btn-sub-veiculo" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-rr-blue text-white shadow">
+          <button onclick="setCadForm('veiculo')" id="btn-sub-veiculo" class="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-rr-blue text-white shadow">
             <i class="fa-solid fa-truck-front mr-1.5"></i> 1. Veículo
           </button>
-          <button onclick="setCadForm('titular')" id="btn-sub-titular" class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-rr-card">
+          <button onclick="setCadForm('titular')" id="btn-sub-titular" class="px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-rr-card">
             <i class="fa-solid fa-id-card mr-1.5"></i> 2. Titular
           </button>
-          <button onclick="setCadForm('cliente')" id="btn-sub-cliente" class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-rr-card">
+          <button onclick="setCadForm('cliente')" id="btn-sub-cliente" class="px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-rr-card">
             <i class="fa-solid fa-users mr-1.5"></i> 3. Clientes
           </button>
         </div>
 
         <!-- FORMULÁRIO 1: VEÍCULOS -->
-        <div id="form-container-veiculo" class="bg-rr-card border border-rr-border rounded-xl p-4 md:p-6 shadow-xl space-y-4">
+        <div id="form-container-veiculo" class="rr-card p-4 md:p-6 space-y-4">
           <div class="border-b border-rr-border/80 pb-3">
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-car text-sky-400"></i> Ficha Cadastral do Veículo
@@ -242,34 +447,34 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Cod</label>
-                <input type="text" id="cad-v-cod" placeholder="Automático" readonly class="w-full bg-rr-navy/60 border border-rr-border rounded-lg px-3 py-1.5 text-xs text-slate-400 font-mono" />
+                <input type="text" id="cad-v-cod" placeholder="Automático" readonly class="w-full bg-rr-navy/60 border border-rr-border rounded-xl px-3 py-2.5 text-xs text-slate-400 font-mono" />
               </div>
               <div class="md:col-span-2">
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Nome *</label>
-                <input type="text" id="cad-v-nome" required placeholder="Ex: PIPA VERMELHO, MOBI, CARGO" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-sky-400 outline-none" />
+                <input type="text" id="cad-v-nome" required placeholder="Ex: PIPA VERMELHO, MOBI, CARGO" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
               </div>
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Fabricante</label>
-                <input type="text" id="cad-v-fabricante" placeholder="Ex: Ford, VW, Fiat" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-sky-400 outline-none" />
+                <input type="text" id="cad-v-fabricante" placeholder="Ex: Ford, VW, Fiat" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Modelo</label>
-                <input type="text" id="cad-v-modelo" placeholder="Ex: 1418, Cargo 816" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-sky-400 outline-none" />
+                <input type="text" id="cad-v-modelo" placeholder="Ex: 1418, Cargo 816" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
               </div>
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Ano Fab. Mod</label>
-                <input type="text" id="cad-v-anofab" placeholder="Ex: 2012/2013" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-sky-400 outline-none" />
+                <input type="text" id="cad-v-anofab" placeholder="Ex: 2012/2013" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
               </div>
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Estado (UF)</label>
-                <input type="text" id="cad-v-estado" placeholder="Ex: BA, SE" maxlength="2" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white uppercase focus:border-sky-400 outline-none" />
+                <input type="text" id="cad-v-estado" placeholder="Ex: BA, SE" maxlength="2" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white uppercase focus:border-sky-400 outline-none" />
               </div>
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Titularidade</label>
-                <input list="lista-titulares-dl" id="cad-v-titular" placeholder="Selecione o Titular..." class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-sky-400 outline-none" />
+                <input list="lista-titulares-dl" id="cad-v-titular" placeholder="Selecione o Titular..." class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
                 <datalist id="lista-titulares-dl"></datalist>
               </div>
             </div>
@@ -277,15 +482,15 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Renavam</label>
-                <input type="text" id="cad-v-renavam" placeholder="268412258" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:border-sky-400 outline-none" />
+                <input type="text" id="cad-v-renavam" placeholder="268412258" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-sky-400 outline-none" />
               </div>
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Placa *</label>
-                <input type="text" id="cad-v-placa" required placeholder="GTQ9A58" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white font-mono uppercase focus:border-sky-400 outline-none" />
+                <input type="text" id="cad-v-placa" required placeholder="GTQ9A58" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white font-mono uppercase focus:border-sky-400 outline-none" />
               </div>
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Mês Licenc. (IPVA) *</label>
-                <select id="cad-v-meslic" required class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-sky-400 outline-none">
+                <select id="cad-v-meslic" required class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none">
                   <option value="1">Janeiro (1)</option>
                   <option value="2">Fevereiro (2)</option>
                   <option value="3">Março (3)</option>
@@ -302,28 +507,28 @@
               </div>
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Cod. Segurança</label>
-                <input type="text" id="cad-v-codseg" placeholder="45835165555" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:border-sky-400 outline-none" />
+                <input type="text" id="cad-v-codseg" placeholder="45835165555" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-sky-400 outline-none" />
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-3 pt-2 border-t border-rr-border/40">
               <div class="md:col-span-2">
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Alugado A (Destinação)</label>
-                <input list="lista-clientes-dl" id="cad-v-alugado" placeholder="Órgão, Empresa ou deixar em branco" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-sky-400 outline-none" />
+                <input list="lista-clientes-dl" id="cad-v-alugado" placeholder="Órgão, Empresa ou deixar em branco" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
                 <datalist id="lista-clientes-dl"></datalist>
               </div>
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Seguradora</label>
-                <input type="text" id="cad-v-seguradora" placeholder="Protege, FCK" value="Protege" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-sky-400 outline-none" />
+                <input type="text" id="cad-v-seguradora" placeholder="Protege, FCK" value="Protege" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
               </div>
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Valor Seguro Mensal (R$)</label>
-                <input type="number" step="0.01" id="cad-v-valorseguro" value="230.00" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-sky-400 outline-none" />
+                <input type="number" step="0.01" id="cad-v-valorseguro" value="230.00" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
               </div>
             </div>
 
             <div class="flex justify-end gap-2 pt-3 border-t border-rr-border/60">
-              <button type="submit" class="px-5 py-2 rounded-lg bg-rr-blue hover:bg-blue-600 text-white text-xs font-bold shadow flex items-center gap-2">
+              <button type="submit" class="px-5 py-2.5 rounded-xl bg-rr-blue hover:bg-blue-600 active:scale-[0.98] text-white text-xs font-bold shadow flex items-center gap-2 transition">
                 <i class="fa-solid fa-floppy-disk"></i> Salvar Veículo
               </button>
             </div>
@@ -331,7 +536,7 @@
         </div>
 
         <!-- FORMULÁRIO 2: TITULARES -->
-        <div id="form-container-titular" class="hidden bg-rr-card border border-rr-border rounded-xl p-4 md:p-6 shadow-xl space-y-4">
+        <div id="form-container-titular" class="hidden rr-card p-4 md:p-6 space-y-4">
           <div class="border-b border-rr-border/80 pb-3">
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-id-card text-sky-400"></i> Ficha Cadastral de Titular
@@ -343,20 +548,20 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">CPF / CNPJ</label>
-                <input type="text" id="cad-t-cpf" placeholder="000.000.000-00 ou CNPJ" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-sky-400 outline-none" />
+                <input type="text" id="cad-t-cpf" placeholder="000.000.000-00 ou CNPJ" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
               </div>
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Titular (PF/PJ) *</label>
-                <input type="text" id="cad-t-nome" required placeholder="Nome do Titular ou Empresa" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white uppercase focus:border-sky-400 outline-none" />
+                <input type="text" id="cad-t-nome" required placeholder="Nome do Titular ou Empresa" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white uppercase focus:border-sky-400 outline-none" />
               </div>
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Telefone</label>
-                <input type="text" id="cad-t-tel" placeholder="(75) 90000-0000" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-sky-400 outline-none" />
+                <input type="text" id="cad-t-tel" placeholder="(75) 90000-0000" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
               </div>
             </div>
 
             <div class="flex justify-end gap-2 pt-3 border-t border-rr-border/60">
-              <button type="submit" class="px-5 py-2 rounded-lg bg-rr-blue hover:bg-blue-600 text-white text-xs font-bold shadow flex items-center gap-2">
+              <button type="submit" class="px-5 py-2.5 rounded-xl bg-rr-blue hover:bg-blue-600 active:scale-[0.98] text-white text-xs font-bold shadow flex items-center gap-2 transition">
                 <i class="fa-solid fa-floppy-disk"></i> Salvar Titular
               </button>
             </div>
@@ -364,7 +569,7 @@
         </div>
 
         <!-- FORMULÁRIO 3: CLIENTES -->
-        <div id="form-container-cliente" class="hidden bg-rr-card border border-rr-border rounded-xl p-4 md:p-6 shadow-xl space-y-4">
+        <div id="form-container-cliente" class="hidden rr-card p-4 md:p-6 space-y-4">
           <div class="border-b border-rr-border/80 pb-3">
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-building-user text-sky-400"></i> Ficha Cadastral de Cliente (Locatário)
@@ -376,31 +581,31 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">ID</label>
-                <input type="text" id="cad-c-id" placeholder="Automático" readonly class="w-full bg-rr-navy/60 border border-rr-border rounded-lg px-3 py-1.5 text-xs text-slate-400 font-mono" />
+                <input type="text" id="cad-c-id" placeholder="Automático" readonly class="w-full bg-rr-navy/60 border border-rr-border rounded-xl px-3 py-2.5 text-xs text-slate-400 font-mono" />
               </div>
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">CPF / CNPJ</label>
-                <input type="text" id="cad-c-cpf" placeholder="00.000.000/0000-00" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-sky-400 outline-none" />
+                <input type="text" id="cad-c-cpf" placeholder="00.000.000/0000-00" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
               </div>
               <div class="md:col-span-2">
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Cliente (PF/PJ) *</label>
-                <input type="text" id="cad-c-nome" required placeholder="Ex: PREFEITURA DE OLINDINA, TRAMAK" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white uppercase focus:border-sky-400 outline-none" />
+                <input type="text" id="cad-c-nome" required placeholder="Ex: PREFEITURA DE OLINDINA, TRAMAK" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white uppercase focus:border-sky-400 outline-none" />
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Responsável</label>
-                <input type="text" id="cad-c-resp" placeholder="Nome do contato" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-sky-400 outline-none" />
+                <input type="text" id="cad-c-resp" placeholder="Nome do contato" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
               </div>
               <div>
                 <label class="block text-[11px] font-medium text-slate-300 mb-1">Telefone</label>
-                <input type="text" id="cad-c-tel" placeholder="(75) 99999-9999" class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-sky-400 outline-none" />
+                <input type="text" id="cad-c-tel" placeholder="(75) 99999-9999" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
               </div>
             </div>
 
             <div class="flex justify-end gap-2 pt-3 border-t border-rr-border/60">
-              <button type="submit" class="px-5 py-2 rounded-lg bg-rr-blue hover:bg-blue-600 text-white text-xs font-bold shadow flex items-center gap-2">
+              <button type="submit" class="px-5 py-2.5 rounded-xl bg-rr-blue hover:bg-blue-600 active:scale-[0.98] text-white text-xs font-bold shadow flex items-center gap-2 transition">
                 <i class="fa-solid fa-floppy-disk"></i> Salvar Cliente
               </button>
             </div>
@@ -410,17 +615,17 @@
 
       <!-- ABA 3: VEÍCULOS -->
       <section id="tab-veiculos" class="hidden space-y-4">
-        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center bg-rr-card p-3 rounded-xl border border-rr-border gap-3">
+        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center rr-card p-3 gap-3">
           <div class="flex items-center gap-2 flex-1 max-w-md">
             <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs"></i>
-            <input type="text" id="filtro-veiculo" oninput="renderVeiculos()" placeholder="Buscar por placa, nome, modelo ou titular..." class="w-full bg-rr-navy border border-rr-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-sky-400 outline-none" />
+            <input type="text" id="filtro-veiculo" oninput="renderVeiculos()" placeholder="Buscar por placa, nome, modelo ou titular..." class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
           </div>
-          <button onclick="navigateTab('cadastros'); setCadForm('veiculo');" class="px-3.5 py-1.5 bg-rr-blue hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-2">
+          <button onclick="navigateTab('cadastros'); setCadForm('veiculo');" class="px-3.5 py-2.5 bg-rr-blue hover:bg-blue-600 active:scale-[0.98] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition">
             <i class="fa-solid fa-plus"></i> Novo Veículo
           </button>
         </div>
 
-        <div class="bg-rr-card border border-rr-border rounded-xl overflow-x-auto shadow">
+        <div class="rr-card overflow-x-auto">
           <table class="w-full text-left text-xs min-w-[650px]">
             <thead class="bg-rr-surface text-slate-300 uppercase font-semibold border-b border-rr-border">
               <tr>
@@ -440,13 +645,13 @@
 
       <!-- ABA 4: TITULARES -->
       <section id="tab-titulares" class="hidden space-y-4">
-        <div class="flex justify-between items-center bg-rr-card p-3 rounded-xl border border-rr-border">
+        <div class="flex justify-between items-center rr-card p-3">
           <h3 class="text-xs font-bold text-white uppercase tracking-wider">Titulares Cadastrados</h3>
-          <button onclick="navigateTab('cadastros'); setCadForm('titular');" class="px-3 py-1.5 bg-rr-blue hover:bg-blue-600 text-white rounded-lg text-xs font-bold">
+          <button onclick="navigateTab('cadastros'); setCadForm('titular');" class="px-3 py-2.5 bg-rr-blue hover:bg-blue-600 active:scale-[0.98] text-white rounded-xl text-xs font-bold transition">
             <i class="fa-solid fa-plus mr-1"></i> Novo Titular
           </button>
         </div>
-        <div class="bg-rr-card border border-rr-border rounded-xl overflow-x-auto shadow">
+        <div class="rr-card overflow-x-auto">
           <table class="w-full text-left text-xs min-w-[500px]">
             <thead class="bg-rr-surface text-slate-300 uppercase font-semibold border-b border-rr-border">
               <tr>
@@ -463,13 +668,13 @@
 
       <!-- ABA 5: CLIENTES -->
       <section id="tab-clientes" class="hidden space-y-4">
-        <div class="flex justify-between items-center bg-rr-card p-3 rounded-xl border border-rr-border">
+        <div class="flex justify-between items-center rr-card p-3">
           <h3 class="text-xs font-bold text-white uppercase tracking-wider">Clientes & Locatários</h3>
-          <button onclick="navigateTab('cadastros'); setCadForm('cliente');" class="px-3 py-1.5 bg-rr-blue hover:bg-blue-600 text-white rounded-lg text-xs font-bold">
+          <button onclick="navigateTab('cadastros'); setCadForm('cliente');" class="px-3 py-2.5 bg-rr-blue hover:bg-blue-600 active:scale-[0.98] text-white rounded-xl text-xs font-bold transition">
             <i class="fa-solid fa-plus mr-1"></i> Novo Cliente
           </button>
         </div>
-        <div class="bg-rr-card border border-rr-border rounded-xl overflow-x-auto shadow">
+        <div class="rr-card overflow-x-auto">
           <table class="w-full text-left text-xs min-w-[550px]">
             <thead class="bg-rr-surface text-slate-300 uppercase font-semibold border-b border-rr-border">
               <tr>
@@ -488,7 +693,7 @@
 
       <!-- ABA 6: SEGUROS -->
       <section id="tab-seguros" class="hidden space-y-4">
-        <div class="bg-rr-card border border-rr-border rounded-xl p-4 md:p-5">
+        <div class="rr-card p-4 md:p-5">
           <div class="flex justify-between items-center mb-3">
             <h3 class="text-xs font-bold text-white uppercase tracking-wider">Apólices de Seguros & Proteção</h3>
             <div class="text-xs text-slate-400">Total Mensal: <span id="total-custo-seguro-tab" class="text-emerald-400 font-bold">R$ 0,00</span></div>
@@ -512,17 +717,17 @@
 
       <!-- ABA 7: MANUTENÇÕES -->
       <section id="tab-manutencoes" class="hidden space-y-4">
-        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center bg-rr-card p-3 rounded-xl border border-rr-border gap-2">
+        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center rr-card p-3 gap-2">
           <div>
             <h3 class="text-xs font-bold text-white">Ordens de Manutenção & Revisões</h3>
             <p class="text-[11px] text-slate-400">Controle preventivo de oficinas, pneus e trocas de óleo</p>
           </div>
-          <button onclick="abrirModalManutencao()" class="px-3.5 py-1.5 bg-rr-blue hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-2">
+          <button onclick="abrirModalManutencao()" class="px-3.5 py-2.5 bg-rr-blue hover:bg-blue-600 active:scale-[0.98] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition">
             <i class="fa-solid fa-wrench"></i> Registrar Manutenção
           </button>
         </div>
 
-        <div class="bg-rr-card border border-rr-border rounded-xl overflow-x-auto shadow">
+        <div class="rr-card overflow-x-auto">
           <table class="w-full text-left text-xs min-w-[550px]">
             <thead class="bg-rr-surface text-slate-300 uppercase font-semibold border-b border-rr-border">
               <tr>
@@ -542,6 +747,72 @@
 
     </div>
   </main>
+
+  <!-- TOASTS -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- CONFIRM DIALOG -->
+  <dialog id="confirm-dialog" class="rr-dialog">
+    <div class="rr-dialog-panel p-5">
+      <h3 id="confirm-dialog-title" class="text-sm font-bold text-white mb-1.5">Confirmar ação</h3>
+      <p id="confirm-dialog-message" class="text-xs text-slate-400 leading-relaxed mb-5"></p>
+      <div class="flex justify-end gap-2">
+        <button type="button" id="confirm-dialog-cancel" class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-rr-border/40 transition">Cancelar</button>
+        <button type="button" id="confirm-dialog-confirm" class="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-rr-blue hover:bg-blue-600 transition">Confirmar</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- MAINTENANCE DIALOG -->
+  <dialog id="maintenance-dialog" class="rr-dialog">
+    <div class="rr-dialog-panel">
+      <div class="flex items-center justify-between p-5 pb-0">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-wrench text-sky-400"></i> Registrar Manutenção
+        </h3>
+        <button type="button" onclick="fecharModalManutencao()" aria-label="Fechar" class="rr-tap-target text-slate-400 hover:text-white rounded-xl hover:bg-rr-border/40 transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <form id="maintenance-form" onsubmit="salvarManutencaoForm(event)" class="p-5 space-y-4">
+        <div>
+          <label class="block text-[11px] font-medium text-slate-300 mb-1">Veículo *</label>
+          <input list="lista-veiculos-mnt-dl" id="mnt-veiculo" required placeholder="Nome do veículo" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
+          <datalist id="lista-veiculos-mnt-dl"></datalist>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-medium text-slate-300 mb-1">Placa</label>
+            <input type="text" id="mnt-placa" placeholder="GTQ9A58" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white font-mono uppercase focus:border-sky-400 outline-none" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-slate-300 mb-1">Custo Total (R$)</label>
+            <input type="number" step="0.01" id="mnt-custo" placeholder="0,00" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-medium text-slate-300 mb-1">Tipo de Serviço</label>
+          <input type="text" id="mnt-tipo" placeholder="Ex: Troca de Óleo, Pastilha, Pneus" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-medium text-slate-300 mb-1">Oficina / Fornecedor</label>
+            <input type="text" id="mnt-oficina" placeholder="Oficina Geral" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-slate-300 mb-1">Próxima Revisão</label>
+            <input type="text" id="mnt-proxima" placeholder="10.000 km" class="w-full bg-rr-navy border border-rr-border rounded-xl px-3 py-2.5 text-xs text-white focus:border-sky-400 outline-none" />
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t border-rr-border/60">
+          <button type="button" onclick="fecharModalManutencao()" class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-rr-border/40 transition">Cancelar</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-rr-blue hover:bg-blue-600 active:scale-[0.98] text-white text-xs font-bold shadow flex items-center gap-2 transition">
+            <i class="fa-solid fa-floppy-disk"></i> Salvar
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
 
   <script>
     // CONTROLE DO SIDEBAR NO CELULAR
@@ -563,6 +834,49 @@
       if (window.innerWidth < 768) {
         toggleSidebar(false);
       }
+    }
+
+    // TOASTS
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `rr-toast rr-toast-${type}`;
+      toast.innerHTML = `
+        <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      requestAnimationFrame(() => toast.classList.add('rr-toast-show'));
+      setTimeout(() => {
+        toast.classList.remove('rr-toast-show');
+        toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+      }, 3200);
+    }
+
+    // CONFIRM DIALOG (substitui window.confirm)
+    function showConfirm({ title, message, confirmLabel = 'Confirmar', danger = false }) {
+      return new Promise((resolve) => {
+        const dialog = document.getElementById('confirm-dialog');
+        document.getElementById('confirm-dialog-title').textContent = title;
+        document.getElementById('confirm-dialog-message').textContent = message;
+        const btnConfirm = document.getElementById('confirm-dialog-confirm');
+        const btnCancel = document.getElementById('confirm-dialog-cancel');
+        btnConfirm.textContent = confirmLabel;
+        btnConfirm.className = `px-4 py-2.5 rounded-xl text-xs font-bold text-white transition ${danger ? 'bg-rose-500 hover:bg-rose-600' : 'bg-rr-blue hover:bg-blue-600'}`;
+
+        function cleanup(result) {
+          dialog.close();
+          btnConfirm.removeEventListener('click', onConfirm);
+          btnCancel.removeEventListener('click', onCancel);
+          resolve(result);
+        }
+        function onConfirm() { cleanup(true); }
+        function onCancel() { cleanup(false); }
+
+        btnConfirm.addEventListener('click', onConfirm);
+        btnCancel.addEventListener('click', onCancel);
+        dialog.showModal();
+      });
     }
 
     const hoje = new Date();
@@ -591,7 +905,7 @@
       };
       const options = { method, headers };
       if (body) options.body = JSON.stringify(body);
-      
+
       const res = await fetch(`${SUPABASE_BASE_URL}/${endpoint}`, options);
       if (!res.ok) {
         throw new Error(`Erro ${res.status}: ${await res.text()}`);
@@ -667,6 +981,14 @@
         opt.value = c.nome;
         dlC.appendChild(opt);
       });
+
+      const dlV = document.getElementById('lista-veiculos-mnt-dl');
+      dlV.innerHTML = '';
+      veiculos.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.nome;
+        dlV.appendChild(opt);
+      });
     }
 
     // DASHBOARD E CRONOGRAMA INTERATIVO
@@ -675,6 +997,9 @@
       const alugados = veiculos.filter(v => v.alugado_a && v.alugado_a.trim() !== '' && v.alugado_a !== 'USO PESSOAL').length;
       const vencendoEsteMes = veiculos.filter(v => Number(v.mes_licenc) === mesAtual);
       const totalSeguro = veiculos.reduce((acc, v) => acc + (Number(v.valor_seguro) || 0), 0);
+
+      const statEls = ['stat-total-frota', 'stat-alugados', 'stat-licenc-mes', 'stat-custo-seguro'];
+      statEls.forEach(id => document.getElementById(id).classList.remove('rr-skeleton'));
 
       document.getElementById('stat-total-frota').innerText = total;
       document.getElementById('stat-alugados').innerText = alugados;
@@ -740,13 +1065,13 @@
 
         let activeClasses = "bg-rr-navy/60 border-rr-border text-slate-400 hover:border-sky-500/50 hover:bg-rr-navy";
         if (isSelected) {
-          activeClasses = "bg-sky-500/20 border-sky-400 text-sky-300 font-bold ring-2 ring-sky-500/40 shadow-lg shadow-sky-500/10";
+          activeClasses = "bg-sky-500/20 border-sky-400 text-sky-300 font-bold rr-selected-glow";
         } else if (isCurrent) {
           activeClasses = "bg-rose-500/10 border-rose-500/40 text-rose-300 font-bold";
         }
 
         grid.innerHTML += `
-          <button type="button" onclick="selecionarMesCronograma(${i})" class="p-2.5 rounded-xl border transition-all flex flex-col items-center justify-center cursor-pointer ${activeClasses}">
+          <button type="button" onclick="selecionarMesCronograma(${i})" class="p-2.5 rounded-xl border transition-all flex flex-col items-center justify-center cursor-pointer min-h-[44px] ${activeClasses}">
             <div class="text-[10px] uppercase font-bold tracking-wider">${nomesMesesCurto[i - 1]}</div>
             <div class="text-base font-extrabold mt-0.5 ${count > 0 ? (isSelected ? 'text-sky-300' : 'text-white') : 'text-slate-600'}">${count}</div>
             <div class="text-[9px] text-slate-500">veículos</div>
@@ -837,7 +1162,7 @@
       veiculos.unshift(novo);
       localStorage.setItem('frota_veiculos', JSON.stringify(veiculos));
 
-      alert(`Veículo ${novo.nome} (${novo.placa}) salvo com sucesso!`);
+      showToast(`Veículo ${novo.nome} (${novo.placa}) salvo com sucesso!`);
       event.target.reset();
       navigateTab('veiculos');
       renderTudo();
@@ -858,7 +1183,7 @@
       titulares.unshift(novo);
       localStorage.setItem('frota_titulares', JSON.stringify(titulares));
 
-      alert(`Titular ${novo.nome} cadastrado com sucesso!`);
+      showToast(`Titular ${novo.nome} cadastrado com sucesso!`);
       event.target.reset();
       navigateTab('titulares');
       renderTudo();
@@ -880,7 +1205,7 @@
       clientes.unshift(novo);
       localStorage.setItem('frota_clientes', JSON.stringify(clientes));
 
-      alert(`Cliente ${novo.nome} cadastrado com sucesso!`);
+      showToast(`Cliente ${novo.nome} cadastrado com sucesso!`);
       event.target.reset();
       navigateTab('clientes');
       renderTudo();
@@ -928,7 +1253,7 @@
               </span>
             </td>
             <td class="p-2.5 text-right">
-              <button onclick="removerVeiculo('${v.placa}')" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-regular fa-trash-can"></i></button>
+              <button onclick="removerVeiculo('${v.placa}')" aria-label="Excluir veículo" class="rr-tap-target text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition"><i class="fa-regular fa-trash-can"></i></button>
             </td>
           </tr>
         `;
@@ -936,12 +1261,19 @@
     }
 
     async function removerVeiculo(placa) {
-      if (!confirm(`Deseja excluir o veículo de placa ${placa}?`)) return;
+      const confirmado = await showConfirm({
+        title: 'Excluir veículo',
+        message: `Deseja excluir o veículo de placa ${placa}? Esta ação não pode ser desfeita.`,
+        confirmLabel: 'Excluir',
+        danger: true
+      });
+      if (!confirmado) return;
       try {
         await reqSupabase(`veiculos?placa=eq.${placa}`, 'DELETE');
       } catch (e) {}
       veiculos = veiculos.filter(v => v.placa !== placa);
       localStorage.setItem('frota_veiculos', JSON.stringify(veiculos));
+      showToast(`Veículo ${placa} removido.`);
       renderTudo();
     }
 
@@ -955,7 +1287,7 @@
             <td class="p-2.5 font-mono text-slate-300">${t.cpf_cnpj || '-'}</td>
             <td class="p-2.5 text-slate-300">${t.telefone || '-'}</td>
             <td class="p-2.5 text-right">
-              <button onclick="removerTitular('${t.nome}')" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-regular fa-trash-can"></i></button>
+              <button onclick="removerTitular('${t.nome}')" aria-label="Remover titular" class="rr-tap-target text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition"><i class="fa-regular fa-trash-can"></i></button>
             </td>
           </tr>
         `;
@@ -963,10 +1295,17 @@
     }
 
     async function removerTitular(nome) {
-      if (!confirm(`Remover titular ${nome}?`)) return;
+      const confirmado = await showConfirm({
+        title: 'Remover titular',
+        message: `Remover titular ${nome}?`,
+        confirmLabel: 'Remover',
+        danger: true
+      });
+      if (!confirmado) return;
       try { await reqSupabase(`titulares?nome=eq.${encodeURIComponent(nome)}`, 'DELETE'); } catch (e) {}
       titulares = titulares.filter(t => t.nome !== nome);
       localStorage.setItem('frota_titulares', JSON.stringify(titulares));
+      showToast(`Titular ${nome} removido.`);
       renderTudo();
     }
 
@@ -982,7 +1321,7 @@
             <td class="p-2.5 text-slate-300">${c.responsavel || '-'}</td>
             <td class="p-2.5 text-slate-300">${c.telefone || '-'}</td>
             <td class="p-2.5 text-right">
-              <button onclick="removerCliente('${c.nome}')" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-regular fa-trash-can"></i></button>
+              <button onclick="removerCliente('${c.nome}')" aria-label="Remover cliente" class="rr-tap-target text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition"><i class="fa-regular fa-trash-can"></i></button>
             </td>
           </tr>
         `;
@@ -990,10 +1329,17 @@
     }
 
     async function removerCliente(nome) {
-      if (!confirm(`Remover cliente ${nome}?`)) return;
+      const confirmado = await showConfirm({
+        title: 'Remover cliente',
+        message: `Remover cliente ${nome}?`,
+        confirmLabel: 'Remover',
+        danger: true
+      });
+      if (!confirmado) return;
       try { await reqSupabase(`clientes?nome=eq.${encodeURIComponent(nome)}`, 'DELETE'); } catch (e) {}
       clientes = clientes.filter(c => c.nome !== nome);
       localStorage.setItem('frota_clientes', JSON.stringify(clientes));
+      showToast(`Cliente ${nome} removido.`);
       renderTudo();
     }
 
@@ -1044,22 +1390,26 @@
       });
     }
 
-    async function abrirModalManutencao() {
-      const veiculo = prompt("Nome do Veículo:");
-      if (!veiculo) return;
-      const placa = prompt("Placa do Veículo:");
-      const tipo = prompt("Tipo de Serviço (Ex: Troca de Óleo, Pastilha, Pneus):");
-      const oficina = prompt("Oficina / Fornecedor:");
-      const custo = prompt("Custo Total (R$):");
+    // MODAL DE MANUTENÇÃO (substitui a sequência de window.prompt)
+    function abrirModalManutencao() {
+      document.getElementById('maintenance-form').reset();
+      document.getElementById('maintenance-dialog').showModal();
+    }
 
+    function fecharModalManutencao() {
+      document.getElementById('maintenance-dialog').close();
+    }
+
+    async function salvarManutencaoForm(event) {
+      event.preventDefault();
       const nova = {
-        veiculo,
-        placa: placa || '-',
-        tipo: tipo || 'Revisão Geral',
-        oficina: oficina || 'Oficina Geral',
-        custo: parseFloat(custo) || 0,
+        veiculo: document.getElementById('mnt-veiculo').value.trim(),
+        placa: document.getElementById('mnt-placa').value.trim().toUpperCase() || '-',
+        tipo: document.getElementById('mnt-tipo').value.trim() || 'Revisão Geral',
+        oficina: document.getElementById('mnt-oficina').value.trim() || 'Oficina Geral',
+        custo: parseFloat(document.getElementById('mnt-custo').value) || 0,
         data: new Date().toISOString().split('T')[0],
-        proxima: '10.000 km',
+        proxima: document.getElementById('mnt-proxima').value.trim() || '10.000 km',
         status: 'Concluída'
       };
 
@@ -1069,6 +1419,9 @@
 
       manutencoes.unshift(nova);
       localStorage.setItem('frota_manutencoes', JSON.stringify(manutencoes));
+
+      fecharModalManutencao();
+      showToast(`Manutenção de ${nova.veiculo} registrada com sucesso!`);
       renderTudo();
     }
 
@@ -1078,14 +1431,14 @@
         document.getElementById(`tab-${t}`).classList.add('hidden');
         const navBtn = document.getElementById(`nav-${t}`);
         if (navBtn) {
-          navBtn.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card";
+          navBtn.className = "w-full flex items-center gap-3 px-3.5 py-3 rounded-xl transition text-slate-300 hover:text-white hover:bg-rr-card";
         }
       });
 
       document.getElementById(`tab-${tab}`).classList.remove('hidden');
       const activeBtn = document.getElementById(`nav-${tab}`);
       if (activeBtn) {
-        activeBtn.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition bg-rr-blue text-white shadow-md shadow-blue-900/30";
+        activeBtn.className = "w-full flex items-center gap-3 px-3.5 py-3 rounded-xl transition bg-rr-blue text-white shadow-md shadow-blue-900/30";
       }
 
       const titulos = {
@@ -1104,10 +1457,10 @@
       const forms = ['veiculo', 'titular', 'cliente'];
       forms.forEach(f => {
         document.getElementById(`form-container-${f}`).classList.add('hidden');
-        document.getElementById(`btn-sub-${f}`).className = "px-3.5 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-rr-card";
+        document.getElementById(`btn-sub-${f}`).className = "px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-rr-card";
       });
       document.getElementById(`form-container-${formTipo}`).classList.remove('hidden');
-      document.getElementById(`btn-sub-${formTipo}`).className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-rr-blue text-white shadow";
+      document.getElementById(`btn-sub-${formTipo}`).className = "px-3.5 py-2.5 rounded-xl text-xs font-bold bg-rr-blue text-white shadow";
     }
 
     // INICIALIZAR
