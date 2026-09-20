@@ -307,23 +307,27 @@
 
       <!-- ABA 1: DASHBOARD & ALERTAS -->
       <section id="tab-dashboard" class="space-y-6">
-        <!-- Alertas Imediatos -->
-        <div class="rr-card rr-card-accent p-4 md:p-5">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-bold text-rr-text" id="alertas-titulo">Alertas e vencimentos</h3>
-            <span class="text-[10px] text-rr-faint hidden sm:inline">Verificação automática</span>
+        <!-- Alertas Imediatos (cards separados) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="rr-card rr-card-accent p-4 md:p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-bold text-rr-text" id="alertas-titulo-mes">Alertas mês atual</h3>
+              <span class="text-[10px] text-rr-faint hidden sm:inline">Verificação automática</span>
+            </div>
+            <div id="lista-alertas-mes" class="divide-y divide-rr-border">
+              <div class="h-12 rounded-lg rr-skeleton my-1"></div>
+              <div class="h-12 rounded-lg rr-skeleton my-1"></div>
+            </div>
+            <div id="lista-alertas-mes-vazio" class="hidden p-4 text-center text-rr-muted text-xs">Nenhum veículo vencendo este mês.</div>
           </div>
 
-          <div class="text-[10px] font-bold uppercase tracking-wider text-rr-faint mb-1">Vencendo este mês</div>
-          <div id="lista-alertas-mes" class="divide-y divide-rr-border">
-            <div class="h-12 rounded-lg rr-skeleton my-1"></div>
-            <div class="h-12 rounded-lg rr-skeleton my-1"></div>
+          <div class="rr-card p-4 md:p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-bold text-rr-text" id="alertas-titulo-prox">Alertas próximo mês</h3>
+            </div>
+            <div id="lista-alertas-prox" class="divide-y divide-rr-border"></div>
+            <div id="lista-alertas-prox-vazio" class="hidden p-4 text-center text-rr-muted text-xs">Nenhum veículo vencendo no próximo mês.</div>
           </div>
-
-          <div class="text-[10px] font-bold uppercase tracking-wider text-rr-faint mt-5 mb-1">Planejar — próximo mês</div>
-          <div id="lista-alertas-prox" class="divide-y divide-rr-border"></div>
-
-          <div id="lista-alertas-vazio" class="hidden p-4 text-center text-rr-muted text-xs">Nenhum alerta imediato no momento. Toda a documentação está em dia.</div>
         </div>
 
         <!-- Indicadores Rápidos -->
@@ -411,7 +415,7 @@
         <div id="form-container-veiculo" class="rr-card p-4 md:p-6 space-y-5">
           <div>
             <h3 class="text-sm font-bold text-rr-text flex items-center gap-2">
-              <i class="fa-solid fa-car text-rr-blue"></i> Ficha Cadastral do Veículo
+              <i class="fa-solid fa-car text-rr-blue"></i> <span id="form-veiculo-titulo">Ficha Cadastral do Veículo</span>
             </h3>
             <p class="text-xs text-rr-muted mt-0.5">Colunas oficiais da tabela de veículos</p>
           </div>
@@ -502,7 +506,7 @@
 
             <div class="flex justify-end pt-3">
               <button type="submit" class="px-6 py-3 rounded-xl bg-rr-blue hover:bg-[#0057B8] active:scale-[0.98] text-white text-xs font-bold uppercase tracking-wide shadow flex items-center gap-2 transition">
-                <i class="fa-solid fa-floppy-disk"></i> Salvar Veículo
+                <i class="fa-solid fa-floppy-disk"></i> <span id="btn-salvar-veiculo-label">Salvar Veículo</span>
               </button>
             </div>
           </form>
@@ -593,7 +597,7 @@
             <i class="fa-solid fa-magnifying-glass text-rr-faint text-xs"></i>
             <input type="text" id="filtro-veiculo" oninput="renderVeiculos()" placeholder="Buscar por placa, nome, modelo ou titular..." class="rr-input" />
           </div>
-          <button onclick="navigateTab('cadastros'); setCadForm('veiculo');" class="px-4 py-2.5 bg-rr-blue hover:bg-[#0057B8] active:scale-[0.98] text-white rounded-xl text-xs font-bold uppercase tracking-wide flex items-center justify-center gap-2 transition">
+          <button onclick="novoVeiculo()" class="px-4 py-2.5 bg-rr-blue hover:bg-[#0057B8] active:scale-[0.98] text-white rounded-xl text-xs font-bold uppercase tracking-wide flex items-center justify-center gap-2 transition">
             <i class="fa-solid fa-plus"></i> Novo Veículo
           </button>
         </div>
@@ -602,12 +606,12 @@
           <table class="w-full text-left text-xs min-w-[650px]">
             <thead class="bg-rr-bg text-rr-muted uppercase font-semibold border-b border-rr-border">
               <tr>
-                <th class="p-2.5">Cod</th>
-                <th class="p-2.5">Nome / Modelo</th>
-                <th class="p-2.5">Placa / Renavam</th>
-                <th class="p-2.5">Titularidade</th>
-                <th class="p-2.5">Mês Licenc.</th>
-                <th class="p-2.5">Destinação / Alugado A</th>
+                <th class="p-2.5 cursor-pointer select-none hover:text-rr-text transition" onclick="ordenarVeiculos('cod')" id="th-cod">Cod <i class="fa-solid fa-sort text-[9px] ml-1 opacity-50"></i></th>
+                <th class="p-2.5 cursor-pointer select-none hover:text-rr-text transition" onclick="ordenarVeiculos('nome')" id="th-nome">Nome / Modelo <i class="fa-solid fa-sort text-[9px] ml-1 opacity-50"></i></th>
+                <th class="p-2.5 cursor-pointer select-none hover:text-rr-text transition" onclick="ordenarVeiculos('placa')" id="th-placa">Placa / Renavam <i class="fa-solid fa-sort text-[9px] ml-1 opacity-50"></i></th>
+                <th class="p-2.5 cursor-pointer select-none hover:text-rr-text transition" onclick="ordenarVeiculos('titularidade')" id="th-titularidade">Titularidade <i class="fa-solid fa-sort text-[9px] ml-1 opacity-50"></i></th>
+                <th class="p-2.5 cursor-pointer select-none hover:text-rr-text transition" onclick="ordenarVeiculos('mes_licenc')" id="th-mes_licenc">Mês Licenc. <i class="fa-solid fa-sort text-[9px] ml-1 opacity-50"></i></th>
+                <th class="p-2.5 cursor-pointer select-none hover:text-rr-text transition" onclick="ordenarVeiculos('alugado_a')" id="th-alugado_a">Destinação / Alugado A <i class="fa-solid fa-sort text-[9px] ml-1 opacity-50"></i></th>
                 <th class="p-2.5 text-right">Ação</th>
               </tr>
             </thead>
@@ -864,6 +868,9 @@
     let titulares = JSON.parse(localStorage.getItem('frota_titulares')) || [];
     let clientes = JSON.parse(localStorage.getItem('frota_clientes')) || [];
     let manutencoes = JSON.parse(localStorage.getItem('frota_manutencoes')) || [];
+    let veiculoEditandoPlaca = null;
+    let veiculosOrdenarCampo = null;
+    let veiculosOrdenarDirecao = 'asc';
 
     // SUPABASE REST
     const SUPABASE_BASE_URL = "https://kflqnwiwkpxrebwrsavg.supabase.co/rest/v1";
@@ -977,17 +984,16 @@
       document.getElementById('stat-licenc-mes').innerText = vencendoEsteMes.length;
       document.getElementById('stat-custo-seguro').innerText = `R$ ${totalSeguro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
 
-      // Listas de alertas (duas seções, linhas simples com divisor fino)
+      // Listas de alertas (cards separados: mês atual x próximo mês)
       const listaMes = document.getElementById('lista-alertas-mes');
       const listaProx = document.getElementById('lista-alertas-prox');
-      const vazio = document.getElementById('lista-alertas-vazio');
       listaMes.innerHTML = '';
       listaProx.innerHTML = '';
 
       const linhaAlerta = (v, tipo) => `
         <div class="flex items-center justify-between py-3 gap-3">
           <div class="min-w-0">
-            <p class="text-xs font-semibold text-rr-text truncate">${v.nome}</p>
+            <button type="button" onclick="abrirEdicaoVeiculo('${v.placa}')" class="text-xs font-semibold text-rr-blue hover:underline text-left truncate block">${v.nome}</button>
             <p class="text-[11px] text-rr-muted truncate">Placa: <span class="font-mono">${v.placa}</span></p>
           </div>
           <span class="rr-pill ${tipo === 'urgente' ? 'rr-pill-solid-red' : 'rr-pill-solid-blue'} shrink-0">${tipo === 'urgente' ? 'Urgente' : 'Planejar'}</span>
@@ -1000,12 +1006,12 @@
       const vencendoProx = veiculos.filter(v => Number(v.mes_licenc) === proxMes);
       vencendoProx.forEach(v => { listaProx.innerHTML += linhaAlerta(v, 'planejar'); });
 
-      document.getElementById('alertas-titulo').innerText = `Alertas e vencimentos — Mês ${mesAtual}`;
-      listaMes.previousElementSibling.classList.toggle('hidden', vencendoEsteMes.length === 0);
+      document.getElementById('alertas-titulo-mes').innerText = `Alertas mês atual (${nomesMesesCompletos[mesAtual - 1]})`;
+      document.getElementById('alertas-titulo-prox').innerText = `Alertas próximo mês (${nomesMesesCompletos[proxMes - 1]})`;
+      document.getElementById('lista-alertas-mes-vazio').classList.toggle('hidden', vencendoEsteMes.length > 0);
       listaMes.classList.toggle('hidden', vencendoEsteMes.length === 0);
-      listaProx.previousElementSibling.classList.toggle('hidden', vencendoProx.length === 0);
+      document.getElementById('lista-alertas-prox-vazio').classList.toggle('hidden', vencendoProx.length > 0);
       listaProx.classList.toggle('hidden', vencendoProx.length === 0);
-      vazio.classList.toggle('hidden', !(vencendoEsteMes.length === 0 && vencendoProx.length === 0));
 
       renderGridMeses();
       renderDetalheMesSelecionado();
@@ -1087,9 +1093,46 @@
     }
 
     // FORMULÁRIOS
+    function preencherFormVeiculo(v) {
+      document.getElementById('cad-v-cod').value = v.cod || '';
+      document.getElementById('cad-v-nome').value = v.nome || '';
+      document.getElementById('cad-v-fabricante').value = v.fabricante || '';
+      document.getElementById('cad-v-modelo').value = v.modelo || '';
+      document.getElementById('cad-v-anofab').value = v.ano_fab_mod || '';
+      document.getElementById('cad-v-estado').value = v.estado || '';
+      document.getElementById('cad-v-titular').value = v.titularidade || '';
+      document.getElementById('cad-v-renavam').value = v.renavam || '';
+      document.getElementById('cad-v-placa').value = v.placa || '';
+      document.getElementById('cad-v-meslic').value = v.mes_licenc || '1';
+      document.getElementById('cad-v-codseg').value = v.cod_seguranca || '';
+      document.getElementById('cad-v-alugado').value = v.alugado_a || '';
+      document.getElementById('cad-v-seguradora').value = v.seguradora || 'Protege';
+      document.getElementById('cad-v-valorseguro').value = v.valor_seguro || 0;
+    }
+
+    function abrirEdicaoVeiculo(placa) {
+      const v = veiculos.find(x => x.placa === placa);
+      if (!v) { showToast('Veículo não encontrado.', 'error'); return; }
+      veiculoEditandoPlaca = placa;
+      navigateTab('cadastros');
+      setCadForm('veiculo');
+      preencherFormVeiculo(v);
+      document.getElementById('form-veiculo-titulo').innerText = `Editar Veículo — ${v.nome}`;
+      document.getElementById('btn-salvar-veiculo-label').innerText = 'Atualizar Veículo';
+    }
+
+    function novoVeiculo() {
+      veiculoEditandoPlaca = null;
+      document.querySelector('#form-container-veiculo form').reset();
+      navigateTab('cadastros');
+      setCadForm('veiculo');
+      document.getElementById('form-veiculo-titulo').innerText = 'Ficha Cadastral do Veículo';
+      document.getElementById('btn-salvar-veiculo-label').innerText = 'Salvar Veículo';
+    }
+
     async function salvarVeiculoForm(event) {
       event.preventDefault();
-      const novo = {
+      const dados = {
         nome: document.getElementById('cad-v-nome').value.trim(),
         fabricante: document.getElementById('cad-v-fabricante').value.trim() || null,
         modelo: document.getElementById('cad-v-modelo').value.trim() || null,
@@ -1105,17 +1148,32 @@
         valor_seguro: parseFloat(document.getElementById('cad-v-valorseguro').value) || 0
       };
 
-      try {
-        await reqSupabase('veiculos', 'POST', [novo]);
-      } catch (err) {
-        console.warn("Salvo localmente (Supabase offline):", err);
+      if (veiculoEditandoPlaca) {
+        const placaAntiga = veiculoEditandoPlaca;
+        try {
+          await reqSupabase(`veiculos?placa=eq.${placaAntiga}`, 'PATCH', dados);
+        } catch (err) {
+          console.warn("Atualizado localmente (Supabase offline):", err);
+        }
+        const idx = veiculos.findIndex(v => v.placa === placaAntiga);
+        if (idx !== -1) veiculos[idx] = { ...veiculos[idx], ...dados };
+        localStorage.setItem('frota_veiculos', JSON.stringify(veiculos));
+        showToast(`Veículo ${dados.nome} (${dados.placa}) atualizado com sucesso!`);
+        veiculoEditandoPlaca = null;
+      } else {
+        try {
+          await reqSupabase('veiculos', 'POST', [dados]);
+        } catch (err) {
+          console.warn("Salvo localmente (Supabase offline):", err);
+        }
+        dados.cod = veiculos.length + 1;
+        veiculos.unshift(dados);
+        localStorage.setItem('frota_veiculos', JSON.stringify(veiculos));
+        showToast(`Veículo ${dados.nome} (${dados.placa}) salvo com sucesso!`);
       }
 
-      novo.cod = veiculos.length + 1;
-      veiculos.unshift(novo);
-      localStorage.setItem('frota_veiculos', JSON.stringify(veiculos));
-
-      showToast(`Veículo ${novo.nome} (${novo.placa}) salvo com sucesso!`);
+      document.getElementById('form-veiculo-titulo').innerText = 'Ficha Cadastral do Veículo';
+      document.getElementById('btn-salvar-veiculo-label').innerText = 'Salvar Veículo';
       event.target.reset();
       navigateTab('veiculos');
       renderTudo();
@@ -1164,13 +1222,40 @@
       renderTudo();
     }
 
+    // ORDENAÇÃO DA TABELA DE VEÍCULOS
+    function ordenarVeiculos(campo) {
+      if (veiculosOrdenarCampo === campo) {
+        veiculosOrdenarDirecao = veiculosOrdenarDirecao === 'asc' ? 'desc' : 'asc';
+      } else {
+        veiculosOrdenarCampo = campo;
+        veiculosOrdenarDirecao = 'asc';
+      }
+      renderVeiculos();
+    }
+
+    function atualizarIconesOrdenacao() {
+      const campos = ['cod', 'nome', 'placa', 'titularidade', 'mes_licenc', 'alugado_a'];
+      campos.forEach(c => {
+        const th = document.getElementById(`th-${c}`);
+        if (!th) return;
+        const icon = th.querySelector('i');
+        if (c === veiculosOrdenarCampo) {
+          icon.className = `fa-solid fa-sort-${veiculosOrdenarDirecao === 'asc' ? 'up' : 'down'} text-[9px] ml-1 text-rr-blue`;
+          th.classList.add('text-rr-text');
+        } else {
+          icon.className = 'fa-solid fa-sort text-[9px] ml-1 opacity-50';
+          th.classList.remove('text-rr-text');
+        }
+      });
+    }
+
     // TABELA DE VEÍCULOS
     function renderVeiculos(mesFiltroDireto = null) {
       const q = (document.getElementById('filtro-veiculo').value || '').toLowerCase();
       const tbody = document.getElementById('corpo-veiculos');
       tbody.innerHTML = '';
 
-      const filtrados = veiculos.filter(v => {
+      let filtrados = veiculos.filter(v => {
         if (mesFiltroDireto) {
           return Number(v.mes_licenc) === mesFiltroDireto;
         }
@@ -1180,6 +1265,21 @@
                (v.titularidade || '').toLowerCase().includes(q) ||
                (v.alugado_a || '').toLowerCase().includes(q);
       });
+
+      if (veiculosOrdenarCampo) {
+        const campo = veiculosOrdenarCampo;
+        const dir = veiculosOrdenarDirecao === 'asc' ? 1 : -1;
+        const numerico = campo === 'cod' || campo === 'mes_licenc';
+        filtrados = [...filtrados].sort((a, b) => {
+          if (numerico) {
+            return ((Number(a[campo]) || 0) - (Number(b[campo]) || 0)) * dir;
+          }
+          const va = (a[campo] || '').toString().toLowerCase();
+          const vb = (b[campo] || '').toString().toLowerCase();
+          return va.localeCompare(vb, 'pt-BR') * dir;
+        });
+      }
+      atualizarIconesOrdenacao();
 
       filtrados.forEach(v => {
         const isLic = Number(v.mes_licenc) === mesAtual;
