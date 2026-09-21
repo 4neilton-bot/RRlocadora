@@ -504,7 +504,10 @@
               </div>
             </div>
 
-            <div class="flex justify-end pt-3">
+            <div class="flex justify-between pt-3">
+              <button type="button" id="btn-excluir-veiculo-form" onclick="excluirVeiculoDoForm()" class="hidden px-5 py-3 rounded-xl border border-rr-red text-rr-red hover:bg-rr-red/10 active:scale-[0.98] text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition">
+                <i class="fa-regular fa-trash-can"></i> Excluir Veículo
+              </button>
               <button type="submit" class="px-6 py-3 rounded-xl bg-rr-blue hover:bg-[#0057B8] active:scale-[0.98] text-white text-xs font-bold uppercase tracking-wide shadow flex items-center gap-2 transition">
                 <i class="fa-solid fa-floppy-disk"></i> <span id="btn-salvar-veiculo-label">Salvar Veículo</span>
               </button>
@@ -1119,6 +1122,7 @@
       preencherFormVeiculo(v);
       document.getElementById('form-veiculo-titulo').innerText = `Editar Veículo — ${v.nome}`;
       document.getElementById('btn-salvar-veiculo-label').innerText = 'Atualizar Veículo';
+      document.getElementById('btn-excluir-veiculo-form').classList.remove('hidden');
     }
 
     function novoVeiculo() {
@@ -1128,6 +1132,7 @@
       setCadForm('veiculo');
       document.getElementById('form-veiculo-titulo').innerText = 'Ficha Cadastral do Veículo';
       document.getElementById('btn-salvar-veiculo-label').innerText = 'Salvar Veículo';
+      document.getElementById('btn-excluir-veiculo-form').classList.add('hidden');
     }
 
     async function salvarVeiculoForm(event) {
@@ -1174,6 +1179,7 @@
 
       document.getElementById('form-veiculo-titulo').innerText = 'Ficha Cadastral do Veículo';
       document.getElementById('btn-salvar-veiculo-label').innerText = 'Salvar Veículo';
+      document.getElementById('btn-excluir-veiculo-form').classList.add('hidden');
       event.target.reset();
       navigateTab('veiculos');
       renderTudo();
@@ -1316,7 +1322,7 @@
         confirmLabel: 'Excluir',
         danger: true
       });
-      if (!confirmado) return;
+      if (!confirmado) return false;
       try {
         await reqSupabase(`veiculos?placa=eq.${placa}`, 'DELETE');
       } catch (e) {}
@@ -1324,6 +1330,19 @@
       localStorage.setItem('frota_veiculos', JSON.stringify(veiculos));
       showToast(`Veículo ${placa} removido.`);
       renderTudo();
+      return true;
+    }
+
+    async function excluirVeiculoDoForm() {
+      if (!veiculoEditandoPlaca) return;
+      const excluido = await removerVeiculo(veiculoEditandoPlaca);
+      if (!excluido) return;
+      veiculoEditandoPlaca = null;
+      document.querySelector('#form-container-veiculo form').reset();
+      document.getElementById('form-veiculo-titulo').innerText = 'Ficha Cadastral do Veículo';
+      document.getElementById('btn-salvar-veiculo-label').innerText = 'Salvar Veículo';
+      document.getElementById('btn-excluir-veiculo-form').classList.add('hidden');
+      navigateTab('veiculos');
     }
 
     function renderTitulares() {
